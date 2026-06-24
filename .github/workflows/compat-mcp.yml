@@ -15,7 +15,7 @@ jobs:
   claude:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -47,7 +47,7 @@ jobs:
   devin:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -149,7 +149,7 @@ jobs:
     # must include the "mcpServers" field.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"

@@ -15,7 +15,7 @@ jobs:
   claude:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -53,7 +53,7 @@ jobs:
     # must include the "commands" pointer field (Cursor 2.4+ schema).
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"

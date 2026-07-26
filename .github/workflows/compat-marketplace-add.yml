@@ -1,4 +1,4 @@
-name: Compat — Marketplace Add (Claude)
+name: Compat — Marketplace Add (Claude + Codex)
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
   claude:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -24,14 +24,6 @@ jobs:
       - name: Regenerate manifests from sources
         run: uv run scripts/generate_manifest.py
 
-      - name: Derive marketplace identity (fork-safe)
-        id: mp
-        run: |
-          echo "name=$(uv run python -c 'import tomllib;print(tomllib.load(open("src/.metadata-MARKETPLACE.toml","rb"))["marketplace"]["name"])')" >> "$GITHUB_OUTPUT"
-      - name: Pick first published plugin (forks may delete the examples)
-        id: plugin
-        run: |
-          echo "name=$(uv run python -c 'import json;d=json.load(open(".claude-plugin/marketplace.json"));print(d["plugins"][0]["name"] if d["plugins"] else "")')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup-claude
         id: claude
 
@@ -40,24 +32,22 @@ jobs:
         run: claude plugin marketplace add ./
 
       - name: Assert marketplace is listed
-        # Match mode: grep substring — marketplace list shows the identity row
-        run: claude plugin marketplace list | grep -F "${{ steps.mp.outputs.name }}"
+        # Match mode: grep substring — catalog row: claude plugin marketplace list shows dgxsparklabs-marketplace row
+        run: claude plugin marketplace list | grep -F "dgxsparklabs-marketplace"
 
       - name: Assert plugin install succeeds
         # CL2: per-plugin install must succeed after marketplace registration
-        if: steps.plugin.outputs.name != ''
-        run: claude plugin install ${{ steps.plugin.outputs.name }}@${{ steps.mp.outputs.name }} --scope project
+        run: claude plugin install skill-example-multi@dgxsparklabs-marketplace --scope project
 
       - name: Assert plugin appears in list
         # CL3: installed plugin must appear in plugin list. Use grep -Fx (exact line)
         # so the substring assertion can't false-positive on a sibling like
         # `skill-example-single` after the post-2026-05-28 expansion.
-        if: steps.plugin.outputs.name != ''
-        run: claude plugin list | grep -F "${{ steps.plugin.outputs.name }}"
+        run: claude plugin list | grep -F "skill-example-multi"
 
       - name: Cleanup
         if: always()
         run: |
-          claude plugin uninstall ${{ steps.plugin.outputs.name }} --scope project || true
-          claude plugin marketplace remove ${{ steps.mp.outputs.name }} || true
+          claude plugin uninstall skill-example-multi --scope project || true
+          claude plugin marketplace remove dgxsparklabs-marketplace || true
 

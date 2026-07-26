@@ -1,4 +1,4 @@
-name: Compat — Skill (Claude)
+name: Compat — Skill (Claude + Devin + Codex + Gemini)
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
   claude:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -24,32 +24,23 @@ jobs:
       - name: Regenerate manifests from sources
         run: uv run scripts/generate_manifest.py
 
-      - name: Derive marketplace identity (fork-safe)
-        id: mp
-        run: |
-          echo "name=$(uv run python -c 'import tomllib;print(tomllib.load(open("src/.metadata-MARKETPLACE.toml","rb"))["marketplace"]["name"])')" >> "$GITHUB_OUTPUT"
-      - name: Pick first published plugin (forks may delete the examples)
-        id: plugin
-        run: |
-          echo "name=$(uv run python -c 'import json;d=json.load(open(".claude-plugin/marketplace.json"));print(d["plugins"][0]["name"] if d["plugins"] else "")')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup-claude
         id: claude
 
       - name: Register marketplace
         run: claude plugin marketplace add ./
 
-      - name: Install the first published plugin
-        if: steps.plugin.outputs.name != ''
-        run: claude plugin install ${{ steps.plugin.outputs.name }}@${{ steps.mp.outputs.name }} --scope project
+      - name: Install skill-example-single plugin
+        run: claude plugin install skill-example-single@dgxsparklabs-marketplace --scope project
 
       - name: Assert plugin is listed (grep match)
         # Match mode: grep substring — catalog row: claude plugin list shows installed entry
-        run: claude plugin list | grep -F "${{ steps.plugin.outputs.name }}@${{ steps.mp.outputs.name }}"
+        run: claude plugin list | grep -F "skill-example-single@dgxsparklabs-marketplace"
 
       - name: Cleanup
         if: always()
         run: |
-          claude plugin uninstall ${{ steps.plugin.outputs.name }} --scope project || true
+          claude plugin uninstall skill-example-single --scope project || true
           claude plugin prune --scope project -y || true
-          claude plugin marketplace remove ${{ steps.mp.outputs.name }} || true
+          claude plugin marketplace remove dgxsparklabs-marketplace || true
 

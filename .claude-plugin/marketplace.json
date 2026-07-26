@@ -16,6 +16,17 @@
         "url": "https://github.com/YoraiLevi"
       },
       "category": "skill"
+    },
+    {
+      "name": "skill-marketplace-operations",
+      "source": "./_generated/claude-code/skill-marketplace-operations",
+      "description": "Operate your own capability marketplace: create one from the template, add capabilities, ship updates, and pull template upgrades.",
+      "version": "1.0.0",
+      "author": {
+        "name": "DgxSparkLabs",
+        "url": "https://github.com/DgxSparkLabs"
+      },
+      "category": "skill"
     }
   ]
 }

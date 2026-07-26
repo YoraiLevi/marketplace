@@ -21,9 +21,9 @@ deleted or overwrite a skill you changed.
 
 ## Automatic updates (default — you do nothing)
 
-The `sync-template` workflow ships in this repo. In your fork it:
+The `sync-updates-from-template` workflow ships in this repo. In your fork it:
 
-1. Runs **daily** (and on demand: Actions → sync-template → Run workflow).
+1. Runs **daily** (and on demand: Actions → sync-updates-from-template → Run workflow).
 2. Fetches `DgxSparkLabs/marketplace-template` and merges it into your main.
    Any conflict resolves in **your** favor (`-X ours`) — safe because conflicts can
    only occur in generated files (regenerated from source anyway) or your

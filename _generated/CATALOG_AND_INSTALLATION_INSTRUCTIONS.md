@@ -60,3 +60,62 @@ rm -rf ~/.claude/skills/hello-yorai
 | hello-yorai | Greets from YoraiLevi's marketplace - the fork-owned replacement for the deleted template examples. | `/yorailevi-skill-hello-yorai:hello-yorai` | `/hello-yorai` |
 
 > **Note:** the flat shortcut resolves only while the component name is unambiguous across your installed skills; the namespaced form always works.
+
+### skill-marketplace-operations
+
+[↑ Table of contents](#table-of-contents)
+
+Operate your own capability marketplace: create one from the template, add capabilities, ship updates, and pull template upgrades.
+
+#### Claude Code
+
+##### Plugin installation
+
+```bash
+claude plugin marketplace add DgxSparkLabs/marketplace-template        # once per machine
+claude plugin install skill-marketplace-operations@dgxsparklabs-marketplace --scope user
+```
+
+Scopes: `--scope user` (all your projects) | `--scope project` (shared with your team via `.claude/settings.json`).
+
+> **Warning:** `--scope project` writes `.claude/settings.json` in the directory you run it from - run it from the root of the project you mean to configure.
+
+###### Deletion
+
+```bash
+claude plugin uninstall skill-marketplace-operations --scope user
+```
+
+> **Warning:** uninstall requires the same `--scope` the install used; without it the CLI reports the plugin as enabled in another scope.
+
+##### Directly
+
+Copy the skill source into your personal skills directory - no marketplace registration, no updates:
+
+```bash
+git clone https://github.com/DgxSparkLabs/marketplace-template /tmp/mp
+cp -r /tmp/mp/src/skills/marketplace-operations/skills/add-capability ~/.claude/skills/add-capability
+cp -r /tmp/mp/src/skills/marketplace-operations/skills/create-marketplace ~/.claude/skills/create-marketplace
+cp -r /tmp/mp/src/skills/marketplace-operations/skills/ship-update ~/.claude/skills/ship-update
+cp -r /tmp/mp/src/skills/marketplace-operations/skills/sync-updates-from-template ~/.claude/skills/sync-updates-from-template
+```
+
+###### Deletion
+
+```bash
+rm -rf ~/.claude/skills/add-capability
+rm -rf ~/.claude/skills/create-marketplace
+rm -rf ~/.claude/skills/ship-update
+rm -rf ~/.claude/skills/sync-updates-from-template
+```
+
+##### Invocation
+
+| Component | Description | Slash command | Flat shortcut |
+|---|---|---|---|
+| add-capability | Add a new capability (skill) to the marketplace repo you are working in - one folder, one push, CI packages and publishes it. Use when the user wants to add, contribute, or publish a skill/capability to their marketplace. | `/dgxsparklabs-skill-marketplace-operations:add-capability` | `/add-capability` |
+| create-marketplace | Create your own capability marketplace from the marketplace-template - forks the template, asks you for your marketplace identity, applies it, and verifies the first publish end to end. Use when the user wants to start, fork, or set up their own marketplace. | `/dgxsparklabs-skill-marketplace-operations:create-marketplace` | `/create-marketplace` |
+| ship-update | Ship changes to the marketplace repo you are working in - branch, commit, PR, merge on green, and verify the published result. Use when the user wants to publish, release, or ship their marketplace changes. | `/dgxsparklabs-skill-marketplace-operations:ship-update` | `/ship-update` |
+| sync-updates-from-template | Pull the marketplace-template's latest machinery updates into the forked marketplace you are working in - automatic and manual paths, plus completing held-back workflow updates. Use when the user wants to update, upgrade, or sync their marketplace from the template. | `/dgxsparklabs-skill-marketplace-operations:sync-updates-from-template` | `/sync-updates-from-template` |
+
+> **Note:** the flat shortcut resolves only while the component name is unambiguous across your installed skills; the namespaced form always works.

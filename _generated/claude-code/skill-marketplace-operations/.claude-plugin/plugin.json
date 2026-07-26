@@ -1,0 +1,16 @@
+{
+  "name": "dgxsparklabs-skill-marketplace-operations",
+  "version": "1.0.0",
+  "author": {
+    "name": "DgxSparkLabs",
+    "url": "https://github.com/DgxSparkLabs"
+  },
+  "description": "Operate your own capability marketplace: create one from the template, add capabilities, ship updates, and pull template upgrades.",
+  "skills": [
+    "./skills/"
+  ],
+  "keywords": [
+    "skill",
+    "marketplace-operations"
+  ]
+}

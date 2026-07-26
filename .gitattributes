@@ -4,7 +4,7 @@
 
 # Fork-owned on first touch: when BOTH the template and this repo changed one of
 # these files, the merge keeps THIS repo's version whole-file (driver configured
-# by sync-template.yml / the manual recipe). Untouched files keep receiving
+# by sync-updates-from-template.yml / the manual recipe). Untouched files keep receiving
 # template updates. Forks: add your own lines to claim more files.
 README.md   merge=ours
 SECURITY.md merge=ours

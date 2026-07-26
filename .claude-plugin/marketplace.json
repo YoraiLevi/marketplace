@@ -7,20 +7,9 @@
   "description": "YoraiLevi's Claude Code skill marketplace, forked from marketplace-template.",
   "plugins": [
     {
-      "name": "skill-example-multi",
-      "source": "./_generated/claude-code/skill-example-multi",
-      "description": "Two reference skills (notebook, status) demonstrating the multi-skill plugin layout.",
-      "version": "1.0.0",
-      "author": {
-        "name": "YoraiLevi",
-        "url": "https://github.com/YoraiLevi"
-      },
-      "category": "skill"
-    },
-    {
-      "name": "skill-example-single",
-      "source": "./_generated/claude-code/skill-example-single",
-      "description": "Prints a minimal greeting plus a UTC timestamp. The smallest possible single-skill reference plugin.",
+      "name": "skill-hello-yorai",
+      "source": "./_generated/claude-code/skill-hello-yorai",
+      "description": "Greets from YoraiLevi's marketplace - the fork-owned replacement for the deleted template examples.",
       "version": "1.0.0",
       "author": {
         "name": "YoraiLevi",

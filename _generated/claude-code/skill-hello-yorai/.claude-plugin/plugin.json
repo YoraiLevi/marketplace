@@ -1,0 +1,16 @@
+{
+  "name": "yorailevi-skill-hello-yorai",
+  "version": "1.0.0",
+  "author": {
+    "name": "YoraiLevi",
+    "url": "https://github.com/YoraiLevi"
+  },
+  "description": "Greets from YoraiLevi's marketplace - the fork-owned replacement for the deleted template examples.",
+  "skills": [
+    "./"
+  ],
+  "keywords": [
+    "skill",
+    "hello-yorai"
+  ]
+}

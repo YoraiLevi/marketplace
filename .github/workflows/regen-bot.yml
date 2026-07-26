@@ -1,6 +1,6 @@
 name: regen-bot
 
-# Auto-regenerate committed artifacts (manifests, docs/INVENTORY.md) so
+# Auto-regenerate committed artifacts (manifests, the generated catalog doc) so
 # contributors only edit src/ and never run the generator (issue #18: the
 # fork→commit→CI→install contract).
 #
@@ -38,7 +38,7 @@ jobs:
        github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'push' && github.ref_name || github.event.pull_request.head.ref }}
       - uses: astral-sh/setup-uv@v5

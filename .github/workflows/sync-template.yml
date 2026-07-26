@@ -107,4 +107,12 @@ jobs:
             echo ""
             echo "Or make this fully automatic forever: add a fine-grained PAT (Contents + Workflows write) as the SYNC_TOKEN repository secret. See docs/UPDATING.md."
           } > /tmp/issue-body.md
-          gh issue create --title "Template sync: workflow updates need one manual step" --body-file /tmp/issue-body.md || echo "issue creation failed (already open?) - continuing"
+          # The run summary is the channel that ALWAYS works; the issue is
+          # best-effort (forks have Issues disabled by default).
+          {
+            echo "## Template sync: workflow updates held back"
+            echo ""
+            cat /tmp/issue-body.md
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::warning title=Template sync::Workflow-file updates from the template were held back - see the run summary for the one command that completes them (or add a SYNC_TOKEN secret / enable Issues for notifications)."
+          gh issue create --title "Template sync: workflow updates need one manual step" --body-file /tmp/issue-body.md || echo "note: could not open an issue (Issues disabled on this fork?) - the run summary above carries the instructions"

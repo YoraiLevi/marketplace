@@ -1,6 +1,6 @@
 name: regen-bot
 
-# Auto-regenerate committed artifacts (manifests, docs/INVENTORY.md) so
+# Auto-regenerate committed artifacts (manifests, the generated catalog doc) so
 # contributors only edit src/ and never run the generator (issue #18: the
 # fork→commit→CI→install contract).
 #

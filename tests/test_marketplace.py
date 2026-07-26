@@ -373,9 +373,24 @@ class TestCatalogDoc(unittest.TestCase):
 
     def test_heading_contract(self):
         text = self.CAT.read_text(encoding="utf-8")
-        for h in ("## skill", "#### Claude Code", "##### Plugin installation",
-                  "##### Directly", "##### Invocation", "###### Deletion"):
+        for h in ("## Table of contents", "## skill", "#### Claude Code",
+                  "##### Plugin installation", "##### Directly",
+                  "##### Invocation", "###### Deletion"):
             self.assertIn(h, text)
+
+    def test_toc_and_backlinks(self):
+        text = self.CAT.read_text(encoding="utf-8")
+        entries = load_marketplace_json()["plugins"]
+        for e in entries:
+            self.assertIn(f"- [{e['name']}](#{e['name']})", text)
+            # backlink sits directly under the item heading, not at section end
+            self.assertIn(
+                f"### {e['name']}" + "\n\n" + "[↑ Table of contents](#table-of-contents)",
+                text,
+            )
+        self.assertEqual(
+            text.count("[↑ Table of contents](#table-of-contents)"), len(entries)
+        )
 
     def test_commands_carry_current_identity(self):
         """A rebrand must never leave stale install commands (regenerated)."""

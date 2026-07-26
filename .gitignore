@@ -1,3 +1,6 @@
+# ==========================================
+# Standard Python & System Ignores
+# ==========================================
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -5,8 +8,37 @@ __pycache__/
 .DS_Store
 .env
 
-# Operator-local, never committed
-.obsidian/
-.claude/
-user_resource_dump/
+# ==========================================
+# AI Agent Configurations & Protocols
+# ==========================================
 
+# 1. Broad Agent Overrides
+# ------------------------------------------
+# Ignore all local secrets, overrides, or environment-specific files
+*.local*
+# Ignore local runtime files, session logs, and conversation histories
+*.log
+.agents/logs/
+.agents/history/
+.claude/projects/
+
+# 2. Shared Agent Protocols (The Allowlist)
+# ------------------------------------------
+# Ignore the agent root folders by default to prevent accidental leaks...
+.agents/
+.claude/
+.codex/
+.gemini/
+.opencode/
+
+# ...BUT explicitly allow team-shared configurations, rules, and commands:
+!.agents/rules/
+!.agents/personas/
+!.agents/specs/
+!.claude/settings.json
+!.claude/commands/
+!.claude/agents/
+!.codex/config.toml
+!.codex/agents/
+!.gemini/settings.json
+!.gemini/commands/

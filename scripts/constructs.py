@@ -221,9 +221,8 @@ class SkillConstruct:
         A(f"claude plugin install {entry}@{mp} --scope user")
         A("```")
         A("")
-        A(f"Scopes: `--scope user` (all your projects) | `--scope project` "
-          f"(shared with your team via `.claude/settings.json`) | omit `@{mp}` "
-          f"and the CLI resolves the name across your registered marketplaces.")
+        A("Scopes: `--scope user` (all your projects) | `--scope project` "
+          "(shared with your team via `.claude/settings.json`).")
         A("")
         A("> **Warning:** `--scope project` writes `.claude/settings.json` in the "
           "directory you run it from - run it from the root of the project you "

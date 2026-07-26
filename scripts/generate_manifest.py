@@ -121,7 +121,19 @@ def _write_catalog(entries: list[dict]) -> None:
         f"**{len(entries)} plugin entries**: "
         + ", ".join(f"{count} {cat}" for cat, count in sorted(cats.items())),
         "",
+        "## Table of contents",
+        "",
     ]
+    def _slug(text: str) -> str:
+        # GitHub heading anchor: lowercase, spaces to hyphens (our headings are
+        # already kebab-case names, so this stays trivially correct).
+        return text.lower().replace(" ", "-")
+    for cat in sorted(cats):
+        cat_heading = f"{cat}s" if not cat.endswith("s") else cat
+        lines.append(f"- [{cat_heading}](#{_slug(cat_heading)})")
+        for e in sorted((x for x in entries if x["category"] == cat), key=lambda x: x["name"]):
+            lines.append(f"  - [{e['name']}](#{_slug(e['name'])})")
+    lines.append("")
     by_prefix = {c.prefix: c for c in CONSTRUCTS.values()}
     for cat in sorted(cats):
         lines.append(f"## {cat}s" if not cat.endswith("s") else f"## {cat}")
@@ -131,11 +143,18 @@ def _write_catalog(entries: list[dict]) -> None:
             if construct is None or not hasattr(construct, "catalog_section"):
                 lines.append(f"### {e['name']}")
                 lines.append("")
+                lines.append("[↑ Table of contents](#table-of-contents)")
+                lines.append("")
                 lines.append(e["description"])
                 lines.append("")
                 continue
             src_name = e["name"].removeprefix(construct.prefix + "-")
-            lines.append(construct.catalog_section(src_name))
+            section = construct.catalog_section(src_name)
+            heading = f"### {e['name']}"
+            section = section.replace(
+                heading, heading + chr(10) + chr(10) + "[↑ Table of contents](#table-of-contents)", 1
+            )
+            lines.append(section)
     (GENERATED.parent / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md").write_text(
         chr(10).join(lines), encoding="utf-8", newline=""
     )

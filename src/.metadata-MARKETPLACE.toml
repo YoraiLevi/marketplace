@@ -15,16 +15,16 @@
 # followed by `uv run scripts/generate_manifest.py` (or just push — CI regenerates).
 
 [marketplace]
-name = "dgxsparklabs-marketplace"
-display_name = "DgxSparkLabs Marketplace"
+name = "yorailevi-marketplace"
+display_name = "YoraiLevi Marketplace"
 version = "1.0.0"
-description = "A fork-ready template marketplace for Claude Code skills - contributors drop a folder into src/skills/, CI packages and publishes it."
+description = "YoraiLevi's Claude Code skill marketplace, forked from marketplace-template."
 
 [owner]
-name = "DgxSparkLabs"
-url = "https://github.com/DgxSparkLabs"
+name = "YoraiLevi"
+url = "https://github.com/YoraiLevi"
 
 [repository]
-url = "https://github.com/DgxSparkLabs/marketplace-template"
-homepage = "https://github.com/DgxSparkLabs/marketplace-template"
+url = "https://github.com/YoraiLevi/marketplace"
+homepage = "https://github.com/YoraiLevi/marketplace"
 license = "MIT"

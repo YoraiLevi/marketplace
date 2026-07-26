@@ -17,4 +17,4 @@ labels: enhancement
 
 <!-- Prior art, links, constraints. -->
 
-<!-- Want to contribute it yourself? See docs/SKILL_FORMAT.md and docs/CONTRIBUTING.md (`uv run scripts/new_construct.py skill <name>` scaffolds). Roadmap = GitHub issues, start at #18. -->
+<!-- Want to contribute it yourself? See docs/capabilities/skills.md and docs/CONTRIBUTING.md (`uv run scripts/new_construct.py skill <name>` scaffolds). Roadmap = GitHub issues, start at #18. -->

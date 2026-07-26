@@ -1,14 +1,14 @@
 # Agent instructions
 
-This is a fork-ready template marketplace for Claude Code skills — not a general software project. Identity lives in `src/.metadata-MARKETPLACE.toml`; contributor content lives under `src/skills/<name>/`; everything else under `_generated/`, `.claude-plugin/`, and `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` is produced by `scripts/generate_manifest.py` and must never be hand-edited.
+This is a fork-ready template marketplace for Claude Code skills — not a general software project. Identity lives in `src/.metadata-MARKETPLACE.toml`; contributor content lives under `src/skills/<name>/`; everything else under `_generated/`, `.claude-plugin/`, and `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` is produced by `scripts/generate_manifest.py` and must never be hand-edited.
 
 ## Where to find things
 
 - `README.md` — install, forking checklist, add-a-skill.
 - `docs/CONTRIBUTING.md` — the contribution contract, local gate, conventions.
 - `docs/ARCHITECTURE.md` — generator phases, the naming chain, CI layout.
-- `docs/SKILL_FORMAT.md` — the SKILL.md format as enforced.
-- `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — generated catalog + install instructions. Never hardcode counts or install commands in prose.
+- `docs/capabilities/skills.md` — the SKILL.md format as enforced.
+- `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — generated catalog + install instructions. Never hardcode counts or install commands in prose.
 - Project history and roadmap live in GitHub issues (start at #18); pre-cleanup project memory is preserved on the `project-memory` branch.
 
 ## Hard rules

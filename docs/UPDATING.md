@@ -34,8 +34,11 @@ The `sync-template` workflow ships in this repo. In your fork it:
 
 **Workflow-file updates — the one GitHub restriction.** The default CI token
 may not push changes under `.github/workflows/`. When a template update touches
-workflow files, the sync ships everything else and opens an issue in your fork
-with the single command that completes it. To make even that automatic (fully
+workflow files, the sync ships everything else and tells you the single command
+that completes it — in the sync run's **summary** (Actions → the run) and as a
+warning annotation, plus an auto-opened issue **if your fork has Issues enabled**
+(GitHub disables Issues on forks by default — enable it in Settings for the
+most visible notification). To make even that automatic (fully
 zero-touch forever), add a repository secret named **`SYNC_TOKEN`** containing a
 fine-grained PAT for your fork with **Contents: write** and **Workflows: write**
 — the sync uses it automatically when present.
@@ -51,6 +54,7 @@ Two more GitHub platform caveats:
 
 ```bash
 git remote add template https://github.com/DgxSparkLabs/marketplace-template  # once
+git config merge.ours.driver true                                             # once - honors the fork-owned file list
 git fetch template
 git merge -X ours --no-edit template/main
 git push
@@ -58,6 +62,14 @@ git push
 
 After pushing, your fork's `regen-bot` regenerates the manifests (your push
 triggers it; CI-token pushes don't) — `git pull` a minute later to see its commit.
+
+## Files that become yours on first edit
+
+`.gitattributes` lists **fork-owned** files (`README.md`, `SECURITY.md` by
+default): while you leave one untouched it keeps receiving template updates;
+the moment you customize it, every sync keeps your version whole-file — no
+half-merged text, ever. Claim more files by adding your own `merge=ours`
+lines to `.gitattributes`; the sync preserves your additions.
 
 ## What NOT to do
 

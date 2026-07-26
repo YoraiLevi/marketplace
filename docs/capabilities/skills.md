@@ -2,7 +2,7 @@
 
 The format for skills in this marketplace, as the toolchain actually enforces and Claude Code actually consumes it. Everything here is checkable against `scripts/validate_source.py` (the CI gate) and the shipped examples under `src/skills/`.
 
-> **You never write `plugin.json` for the marketplace** — the generator derives the plugin wrapper at `_generated/claude-code/skill-<name>/` from your `SKILL.md` + `src/.metadata-MARKETPLACE.toml`. See [CONTRIBUTING](CONTRIBUTING.md) for the workflow.
+> **You never write `plugin.json` for the marketplace** — the generator derives the plugin wrapper at `_generated/claude-code/skill-<name>/` from your `SKILL.md` + `src/.metadata-MARKETPLACE.toml`. See [CONTRIBUTING](../CONTRIBUTING.md) for the workflow.
 
 ## Layouts
 
@@ -56,4 +56,4 @@ The validator checks every `${CLAUDE_PLUGIN_ROOT}/<file>` reference in bundled J
 - Flat shortcut: `/<name>` when unambiguous
 - The model can also invoke the skill autonomously based on `description`.
 
-Naming chain and rules in full: [ARCHITECTURE](ARCHITECTURE.md) "The name chain" + issue #19.
+Naming chain and rules in full: [ARCHITECTURE](../ARCHITECTURE.md) "The name chain" + issue #19.

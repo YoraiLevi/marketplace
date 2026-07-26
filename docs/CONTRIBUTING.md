@@ -6,7 +6,16 @@ status: live
 
 # Contributing
 
-The contract: **you touch `src/skills/` only; CI owns everything generated.** A contribution is a skill folder and nothing else — no manifest edits, no generator runs, no version bumps.
+The contract: **you touch `src/` only; CI owns everything generated.** A contribution is a capability folder and nothing else — no manifest edits, no generator runs, no version bumps.
+
+## Capability types
+
+Each capability type has its own source folder and format guide under [`docs/capabilities/`](capabilities/) — one umbrella, one file per type; future types land as sibling rows here and sibling files there.
+
+| Type | Contribute into | Format guide | Status |
+|---|---|---|---|
+| **Skills** | `src/skills/<name>/` | [`capabilities/skills.md`](capabilities/skills.md) | shipping |
+| Commands, agents, hooks, MCP servers, … | — | future siblings in `docs/capabilities/` | planned — [tracked issues](https://github.com/DgxSparkLabs/marketplace-template/issues/18) |
 
 ## Prerequisites
 
@@ -14,6 +23,8 @@ The contract: **you touch `src/skills/` only; CI owns everything generated.** A 
 - The `claude` CLI if you want the final validate step locally (optional — CI runs it regardless)
 
 ## Adding a skill
+
+Full format reference: [`capabilities/skills.md`](capabilities/skills.md). Quick version:
 
 1. Create the folder — scaffold (`uv run scripts/new_construct.py skill my-skill`) or by hand:
    - **Solo layout**: `src/skills/my-skill/SKILL.md` — frontmatter `description:` required; `name:` optional (defaults to the folder name)
@@ -34,7 +45,7 @@ Runs, in order: `validate_source.py` (structure + naming standard) → drift che
 - kebab-case names; Python is PEP 723 + `uv run` (never `pip`); shell scripts use `set -euo pipefail`.
 - PR-only to `main`; feature branches push freely.
 - No AI co-author attribution in commits.
-- Never hand-edit `_generated/`, `.claude-plugin/`, or `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — regenerated from scratch every run.
+- Never hand-edit anything under `_generated/` (including the generated catalog doc) or `.claude-plugin/` — regenerated from scratch every run.
 - After fixing any bug worth remembering, record it in the fixing PR/issue so the next person can find it by search.
 - Install the pre-push hook once: `pre-commit install` (runs `validate_source.py` on `src/` before each commit).
 

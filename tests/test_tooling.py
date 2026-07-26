@@ -185,7 +185,7 @@ class TestDriftGateReadOnly(unittest.TestCase):
     def test_check_fails_twice_and_restores_tree(self):
         import subprocess
 
-        inv = REPO_ROOT / "docs" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md"
+        inv = REPO_ROOT / "_generated" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md"
         original = inv.read_bytes()
         try:
             inv.write_bytes(original + b"tampered\n")

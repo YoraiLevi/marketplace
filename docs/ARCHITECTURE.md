@@ -24,7 +24,9 @@ Everything in the repo is one of two things; nothing is both.
 
 - `_generated/claude-code/<plugin>/` — the installable plugins, platform-namespaced. Claude Code is the only platform today; a revived platform (issues #28–#36) gets a sibling `_generated/<platform>/` and never mixes.
 - `.claude-plugin/marketplace.json` — the manifest `claude plugin marketplace add` reads.
-- `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — the catalog: every plugin, every install/removal path, invocation tables — rendered with this marketplace's identity.
+- `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — the catalog: every plugin, every install/removal path, invocation tables — rendered with this marketplace's identity.
+
+`docs/` now contains ONLY human-authored prose; everything machine-written lives under `_generated/`.
 
 **Neither (plumbing, hand-maintained but not content):** `scripts/` (generator, validators, task runner), `tests/`, `.github/` (CI), `docs/` prose.
 - In CI, `regen-bot.yml` runs the generator and commits the result (identity `marketplace-generator`) on pushes to main and same-repo PRs; `ci.yml`'s `--check` drift gate rejects any tree where regeneration is not a no-op.
@@ -35,7 +37,7 @@ Everything in the repo is one of two things; nothing is both.
 |---|---|---|
 | 1 | `_generated/claude-code/skill-<name>/` + its `.claude-plugin/plugin.json` | one per source plugin; `Construct.emit` copies content, composes plugin.json |
 | 5 | `.claude-plugin/marketplace.json` | from in-memory entries, sorted for deterministic diffs |
-| 7 | `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` | generated catalog + installation instructions; drift-checked like the manifests |
+| 7 | `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` | generated catalog + installation instructions; drift-checked like the manifests |
 
 Phase numbering is deliberately sparse: the retired phases (1.5/2a/3/4/4.5/5.5/6 — per-platform manifests, bundles, mirrors) emitted per-platform manifests, bundles, and mirrors for removed capabilities — see git history and #18's child issues.
 

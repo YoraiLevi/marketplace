@@ -364,7 +364,7 @@ class TestMarketplaceToml(unittest.TestCase):
 class TestCatalogDoc(unittest.TestCase):
     """The generated catalog doc: composition + identity invariants."""
 
-    CAT = REPO_ROOT / "docs" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md"
+    CAT = REPO_ROOT / "_generated" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md"
 
     def test_every_entry_has_a_section(self):
         text = self.CAT.read_text(encoding="utf-8")

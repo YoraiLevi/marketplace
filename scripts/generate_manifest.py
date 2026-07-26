@@ -9,7 +9,7 @@ generate_manifest.py — thin orchestrator for the marketplace generator.
 Phases (post scope-down, issue #18 — Claude Code is the only platform):
   1.  Individual construct plugins: emit one _generated/<prefix>-<name>/ per source
   5.  Top-level marketplace.json: write from in-memory entries (decision #17)
-  7.  docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md: the generated catalog -
+  7.  _generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md: the generated catalog -
       every plugin, every install/removal path, invocation tables
 
 (Phase numbering is kept sparse deliberately — the retired phases 1.5/3/4/4.5/
@@ -97,7 +97,7 @@ def _write_marketplace_json(entries: list[dict]) -> None:
 
 
 def _write_catalog(entries: list[dict]) -> None:
-    """Emit docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md (replaces INVENTORY).
+    """Emit _generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md.
 
     The generated, drift-checked catalog: every published plugin, grouped by
     construct, with EVERY installation path spelled out per platform (plugin
@@ -136,7 +136,7 @@ def _write_catalog(entries: list[dict]) -> None:
                 continue
             src_name = e["name"].removeprefix(construct.prefix + "-")
             lines.append(construct.catalog_section(src_name))
-    (REPO_ROOT / "docs" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md").write_text(
+    (GENERATED.parent / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md").write_text(
         chr(10).join(lines), encoding="utf-8", newline=""
     )
 
@@ -218,7 +218,7 @@ def _check_drift() -> int:
 
     # Root-level generated files (no mirror dirs remain post scope-down)
     root_generated = [
-        REPO_ROOT / "docs" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md",  # Phase 7
+        REPO_ROOT / "_generated" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md",  # Phase 7
     ]
     targets = [GENERATED, MARKETPLACE_JSON.parent] + root_generated
 

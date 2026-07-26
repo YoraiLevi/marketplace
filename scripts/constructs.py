@@ -190,7 +190,7 @@ class SkillConstruct:
     def catalog_section(self, name: str) -> str:
         """Render this plugin's section of the generated catalog doc.
 
-        Heading contract (docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md):
+        Heading contract (_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md):
         ``###`` plugin · ``####`` platform · ``#####`` install method /
         Invocation · ``######`` Deletion per method. Claude Code is the only
         platform today; a revived platform (issues #28-#36) adds a sibling

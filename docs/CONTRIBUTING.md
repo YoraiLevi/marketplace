@@ -34,7 +34,7 @@ Runs, in order: `validate_source.py` (structure + naming standard) → drift che
 - kebab-case names; Python is PEP 723 + `uv run` (never `pip`); shell scripts use `set -euo pipefail`.
 - PR-only to `main`; feature branches push freely.
 - No AI co-author attribution in commits.
-- Never hand-edit `_generated/`, `.claude-plugin/`, or `docs/INVENTORY.md` — regenerated from scratch every run.
+- Never hand-edit `_generated/`, `.claude-plugin/`, or `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — regenerated from scratch every run.
 - After fixing any bug worth remembering, record it in the fixing PR/issue so the next person can find it by search.
 - Install the pre-push hook once: `pre-commit install` (runs `validate_source.py` on `src/` before each commit).
 

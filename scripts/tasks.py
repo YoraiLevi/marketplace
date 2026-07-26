@@ -9,7 +9,7 @@ Usage:
     uv run scripts/tasks.py <task>
 
 Tasks:
-    regen    regenerate manifests / mirrors / docs/INVENTORY.md from src/
+    regen    regenerate manifests / the catalog doc from src/
     check    drift-check only (no writes; exit 1 on drift)
     test     run all the test suites (SUITES below)
     verify   check + test + `claude plugin validate ./`

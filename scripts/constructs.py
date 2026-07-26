@@ -35,8 +35,10 @@ from utils import (
     _load_plugin_json,
     _marketplace_author,
     _marketplace_name,
+    _marketplace_repo_slug,
     _marketplace_version,
     _read_source_plugin_description,
+    skill_components,
     write_plugin_json,
 )
 
@@ -183,6 +185,95 @@ class SkillConstruct:
         )
         # Write plugin.json under .claude-plugin/ (overrides any source copy)
         write_plugin_json(target_dir, self.build_plugin_json(name))
+
+
+    def catalog_section(self, name: str) -> str:
+        """Render this plugin's section of the generated catalog doc.
+
+        Heading contract (docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md):
+        ``###`` plugin · ``####`` platform · ``#####`` install method /
+        Invocation · ``######`` Deletion per method. Claude Code is the only
+        platform today; a revived platform (issues #28-#36) adds a sibling
+        ``####`` block here. All commands render with THIS marketplace's
+        identity so every fork's catalog is copy-pasteable as-is.
+        """
+        mp = _marketplace_name()
+        brand = mp.removesuffix("-marketplace") if mp.endswith("-marketplace") else mp
+        slug = _marketplace_repo_slug()
+        entry = f"{self.prefix}-{name}"
+        namespace = f"{brand}-{self.prefix}-{name}"
+        src = self.source_directory / name
+        comps = skill_components(src)
+        desc = self.build_plugin_json(name)["description"]
+        solo = any(c["dir"] is None for c in comps)
+        L: list[str] = []
+        A = L.append
+        A(f"### {entry}")
+        A("")
+        A(desc)
+        A("")
+        A("#### Claude Code")
+        A("")
+        A("##### Plugin installation")
+        A("")
+        A("```bash")
+        A(f"claude plugin marketplace add {slug}        # once per machine")
+        A(f"claude plugin install {entry}@{mp} --scope user")
+        A("```")
+        A("")
+        A(f"Scopes: `--scope user` (all your projects) | `--scope project` "
+          f"(shared with your team via `.claude/settings.json`) | omit `@{mp}` "
+          f"and the CLI resolves the name across your registered marketplaces.")
+        A("")
+        A("> **Warning:** `--scope project` writes `.claude/settings.json` in the "
+          "directory you run it from - run it from the root of the project you "
+          "mean to configure.")
+        A("")
+        A("###### Deletion")
+        A("")
+        A("```bash")
+        A(f"claude plugin uninstall {entry} --scope user")
+        A("```")
+        A("")
+        A("> **Warning:** uninstall requires the same `--scope` the install used; "
+          "without it the CLI reports the plugin as enabled in another scope.")
+        A("")
+        A("##### Directly")
+        A("")
+        A("Copy the skill source into your personal skills directory - no "
+          "marketplace registration, no updates:")
+        A("")
+        A("```bash")
+        A(f"git clone https://github.com/{slug} /tmp/mp" if "/" in slug and not slug.startswith("http") else f"git clone {slug} /tmp/mp")
+        if solo:
+            A(f"cp -r /tmp/mp/src/skills/{name} ~/.claude/skills/{name}")
+        else:
+            for c in comps:
+                A(f"cp -r /tmp/mp/src/skills/{name}/skills/{c['dir']} ~/.claude/skills/{c['dir']}")
+        A("```")
+        A("")
+        A("###### Deletion")
+        A("")
+        A("```bash")
+        if solo:
+            A(f"rm -rf ~/.claude/skills/{name}")
+        else:
+            for c in comps:
+                A(f"rm -rf ~/.claude/skills/{c['dir']}")
+        A("```")
+        A("")
+        A("##### Invocation")
+        A("")
+        A("| Component | Description | Slash command | Flat shortcut |")
+        A("|---|---|---|---|")
+        for c in comps:
+            A(f"| {c['name']} | {c['description']} | `/{namespace}:{c['name']}` | `/{c['name']}` |")
+        A("")
+        A("> **Note:** the flat shortcut resolves only while the component name "
+          "is unambiguous across your installed skills; the namespaced form "
+          "always works.")
+        A("")
+        return chr(10).join(L)
 
 
 # ─── Registry ────────────────────────────────────────────────────────────────

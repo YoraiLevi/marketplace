@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Regenerate all marketplace manifests and docs/INVENTORY.md from src/.
+# Regenerate all marketplace manifests and the generated catalog doc from src/.
 # Pass --check to verify the committed output is in sync WITHOUT writing.
 #   ./scripts/regen.ps1          # write everything
 #   ./scripts/regen.ps1 --check  # CI-style drift check (exit 1 on drift)

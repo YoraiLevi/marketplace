@@ -19,6 +19,7 @@ Provides:
 from __future__ import annotations
 
 import json
+import re
 import tomllib
 from functools import cache
 from pathlib import Path
@@ -181,3 +182,51 @@ def write_plugin_json(target_dir: Path, plugin_json: dict) -> None:
     (plugin_subdir / "plugin.json").write_text(
         _to_json(plugin_json), encoding="utf-8", newline=""
     )
+
+def skill_components(plugin_dir: Path) -> list[dict]:
+    """Enumerate a skill plugin's components: [{name, description, dir}].
+
+    Solo layout yields one entry with ``dir=None`` (the plugin dir itself is
+    the component); multi layout yields one entry per ``skills/<dir>/SKILL.md``
+    with ``dir`` set to the component folder name. Shared by the source
+    validator (naming rules) and the catalog generator (invocation tables).
+    """
+    out: list[dict] = []
+    root = plugin_dir / "SKILL.md"
+    if root.exists():
+        fm = _frontmatter(root)
+        out.append({
+            "name": fm.get("name") or plugin_dir.name,
+            "description": fm.get("description") or "",
+            "dir": None,
+        })
+    sub = plugin_dir / "skills"
+    if sub.is_dir():
+        for d in sorted(sub.iterdir()):
+            sk = d / "SKILL.md"
+            if sk.exists():
+                fm = _frontmatter(sk)
+                out.append({
+                    "name": fm.get("name") or d.name,
+                    "description": fm.get("description") or "",
+                    "dir": d.name,
+                })
+    return out
+
+
+def _marketplace_repo_slug() -> str:
+    """``<owner>/<repo>`` from the metadata repository URL (or the full URL).
+
+    ``claude plugin marketplace add`` accepts the GitHub shortform; when the
+    repository URL is not a github.com URL, fall back to the URL itself.
+    """
+    url = _load_marketplace_toml().get("repository", {}).get("url", "")
+    m = re.match(r"https?://github\.com/([^/]+/[^/]+?)(?:\.git)?/?$", url)
+    return m.group(1) if m else url
+
+
+def _marketplace_display_name() -> str:
+    """Human-facing marketplace title (falls back to the identity name)."""
+    mp = _load_marketplace_toml().get("marketplace", {})
+    return mp.get("display_name") or mp.get("name", "Marketplace")
+

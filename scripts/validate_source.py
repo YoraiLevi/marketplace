@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from utils import SRC, _frontmatter, _marketplace_name  # noqa: E402
+from utils import SRC, _frontmatter, _marketplace_name, skill_components  # noqa: E402
 
 KEBAB = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 PLUGIN_ROOT_REF = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\"'\s]+)")
@@ -82,27 +82,13 @@ def _check_marketplace_identity(problems: list[str]) -> None:
         )
 
 
-def _skill_component_names(plugin_dir: Path) -> list[tuple[Path, str]]:
-    """Yield (source, component-name) pairs for a skill plugin (solo or multi)."""
-    out: list[tuple[Path, str]] = []
-    root_skill = plugin_dir / "SKILL.md"
-    if root_skill.exists():
-        fm = _frontmatter(root_skill)
-        out.append((root_skill, fm.get("name") or plugin_dir.name))
-    subdir = plugin_dir / "skills"
-    if subdir.is_dir():
-        for d in sorted(subdir.iterdir()):
-            sk = d / "SKILL.md"
-            if sk.exists():
-                fm = _frontmatter(sk)
-                out.append((sk, fm.get("name") or d.name))
-    return out
-
-
 def _check_component_names(plugin_dir: Path, problems: list[str]) -> None:
     """N4 — component names: kebab, 1-32 chars, unique within the plugin."""
     seen: dict[str, Path] = {}
-    for src_file, comp in _skill_component_names(plugin_dir):
+    for entry in skill_components(plugin_dir):
+        comp = entry["name"]
+        src_file = plugin_dir / (entry["dir"] or "") if entry["dir"] else plugin_dir
+        src_file = (plugin_dir / "skills" / entry["dir"] / "SKILL.md") if entry["dir"] else (plugin_dir / "SKILL.md")
         if not KEBAB.match(comp):
             problems.append(f"{src_file}: component name '{comp}' not kebab-case (N4.1)")
         if not (1 <= len(comp) <= 32):

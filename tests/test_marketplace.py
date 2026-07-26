@@ -361,6 +361,30 @@ class TestMarketplaceToml(unittest.TestCase):
         self.assertRegex(version, r"^\d+\.\d+\.\d+$", f"version '{version}' must be semver")
 
 
+class TestCatalogDoc(unittest.TestCase):
+    """The generated catalog doc: composition + identity invariants."""
+
+    CAT = REPO_ROOT / "docs" / "CATALOG_AND_INSTALLATION_INSTRUCTIONS.md"
+
+    def test_every_entry_has_a_section(self):
+        text = self.CAT.read_text(encoding="utf-8")
+        for e in load_marketplace_json()["plugins"]:
+            self.assertIn(f"### {e['name']}", text)
+
+    def test_heading_contract(self):
+        text = self.CAT.read_text(encoding="utf-8")
+        for h in ("## skill", "#### Claude Code", "##### Plugin installation",
+                  "##### Directly", "##### Invocation", "###### Deletion"):
+            self.assertIn(h, text)
+
+    def test_commands_carry_current_identity(self):
+        """A rebrand must never leave stale install commands (regenerated)."""
+        text = self.CAT.read_text(encoding="utf-8")
+        mp = load_marketplace_json()["name"]
+        self.assertIn(f"@{mp}", text)
+        self.assertNotIn("@<", text)  # no placeholder leakage
+
+
 # ─── runner ───────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ claude plugin install skill-example-multi@dgxsparklabs-marketplace --scope proje
 
 Install auto-enables the plugin on current CLIs. Two sharp edges worth knowing: `--scope project` writes `.claude/settings.json` in your **current directory** — run it from the project you mean to configure; and uninstalling needs the same flag (`claude plugin uninstall skill-example-multi --scope project`).
 
-Browse what's installable with `claude plugin list --available --json` (the `--available` flag requires `--json`) — or just read the generated list at [`docs/INVENTORY.md`](docs/INVENTORY.md).
+Every published plugin, every way to install/remove/invoke it — with copy-pasteable commands for THIS marketplace: [`docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md`](docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md) (generated). Or query the CLI: `claude plugin list --available --json` (the `--available` flag requires `--json`).
 
 Skills invoke as `/<brand>-skill-<plugin-folder>:<skill-name>` (e.g. `/dgxsparklabs-skill-example-multi:notebook`) or via the flat shortcut (`/notebook`) when unambiguous.
 
@@ -39,7 +39,7 @@ Skills invoke as `/<brand>-skill-<plugin-folder>:<skill-name>` (e.g. `/dgxsparkl
 4. **Push to main.** CI regenerates every manifest with your identity — nothing else needs renaming; install commands, plugin names, and slash namespaces all derive from that one file plus your repo slug. (`.metadata-*.toml` files are the fork-editable source metadata — dot-prefixed like `.env`: your fork edits them and ships its own values.)
 5. Tell users: `claude plugin marketplace add <you>/<your-fork>`.
 
-What you may NOT hand-edit: `_generated/`, `.claude-plugin/`, `docs/INVENTORY.md` — CI owns them and will overwrite (drift is also a CI failure on PRs).
+What you may NOT hand-edit: `_generated/`, `.claude-plugin/`, `docs/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — CI owns them and will overwrite (drift is also a CI failure on PRs).
 
 ## Add a skill
 

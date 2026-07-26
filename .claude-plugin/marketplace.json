@@ -1,10 +1,10 @@
 {
-  "name": "dgxsparklabs-marketplace",
+  "name": "yorailevi-marketplace",
   "owner": {
-    "name": "DgxSparkLabs",
-    "url": "https://github.com/DgxSparkLabs"
+    "name": "YoraiLevi",
+    "url": "https://github.com/YoraiLevi"
   },
-  "description": "A fork-ready template marketplace for Claude Code skills - contributors drop a folder into src/skills/, CI packages and publishes it.",
+  "description": "YoraiLevi's Claude Code skill marketplace, forked from marketplace-template.",
   "plugins": [
     {
       "name": "skill-example-multi",
@@ -12,8 +12,8 @@
       "description": "Two reference skills (notebook, status) demonstrating the multi-skill plugin layout.",
       "version": "1.0.0",
       "author": {
-        "name": "DgxSparkLabs",
-        "url": "https://github.com/DgxSparkLabs"
+        "name": "YoraiLevi",
+        "url": "https://github.com/YoraiLevi"
       },
       "category": "skill"
     },
@@ -23,8 +23,8 @@
       "description": "Prints a minimal greeting plus a UTC timestamp. The smallest possible single-skill reference plugin.",
       "version": "1.0.0",
       "author": {
-        "name": "DgxSparkLabs",
-        "url": "https://github.com/DgxSparkLabs"
+        "name": "YoraiLevi",
+        "url": "https://github.com/YoraiLevi"
       },
       "category": "skill"
     }

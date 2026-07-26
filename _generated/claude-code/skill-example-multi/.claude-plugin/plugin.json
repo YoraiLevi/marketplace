@@ -1,9 +1,9 @@
 {
-  "name": "dgxsparklabs-skill-example-multi",
+  "name": "yorailevi-skill-example-multi",
   "version": "1.0.0",
   "author": {
-    "name": "DgxSparkLabs",
-    "url": "https://github.com/DgxSparkLabs"
+    "name": "YoraiLevi",
+    "url": "https://github.com/YoraiLevi"
   },
   "description": "Two reference skills (notebook, status) demonstrating the multi-skill plugin layout.",
   "skills": [

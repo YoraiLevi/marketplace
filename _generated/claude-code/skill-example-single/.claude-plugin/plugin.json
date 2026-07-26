@@ -1,9 +1,9 @@
 {
-  "name": "dgxsparklabs-skill-example-single",
+  "name": "yorailevi-skill-example-single",
   "version": "1.0.0",
   "author": {
-    "name": "DgxSparkLabs",
-    "url": "https://github.com/DgxSparkLabs"
+    "name": "YoraiLevi",
+    "url": "https://github.com/YoraiLevi"
   },
   "description": "Prints a minimal greeting plus a UTC timestamp. The smallest possible single-skill reference plugin.",
   "skills": [

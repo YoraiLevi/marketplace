@@ -46,6 +46,7 @@ jobs:
       - name: Merge template/main (fork content wins conflicts)
         id: merge
         run: |
+          git config merge.ours.driver true  # honor the fork-owned allowlist in .gitattributes
           git config user.name "marketplace-generator"
           git config user.email "generator@dgxsparklabs.invalid"
           PRE=$(git rev-parse HEAD)

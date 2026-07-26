@@ -53,4 +53,14 @@ A skill folder is either **solo** (`src/skills/<plugin>/SKILL.md`) or **multi** 
 
 Working locally and want the full gate before pushing? `uv run scripts/tasks.py verify` runs source validation → drift check → test suites → `claude plugin validate`. If the drift check fails it tells you what's out of sync and leaves your tree untouched; commit only `src/` and let CI regenerate, or run `uv run scripts/generate_manifest.py` and commit everything — both work.
 
+## Template updates — your fork receives them automatically
+
+This template is maintained **as software**: bug fixes, CI improvements, and doc
+updates land upstream, and forked marketplaces are *intended* to receive them.
+Because you only ever edit `src/skills/` and `src/.metadata-MARKETPLACE.toml`,
+updates merge underneath your content without touching it. The shipped
+`sync-template` workflow checks the template **daily** and merges + republishes
+on its own — you do nothing. Details, the manual recipe, and the one warning
+(never use GitHub's "Sync fork" button on a published fork): [`docs/UPDATING.md`](docs/UPDATING.md).
+
 What is generated vs. what you edit — and how generation works: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

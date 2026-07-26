@@ -1,0 +1,71 @@
+name: sync-template
+
+# The template-update channel for FORKS (docs/UPDATING.md): daily, pull the
+# upstream template's machinery improvements into this marketplace without
+# touching the fork's content (src/skills/ + src/.metadata-MARKETPLACE.toml).
+#
+# Design notes:
+# - `-X ours` conflict policy is safe BY CONSTRUCTION here: forks only edit
+#   src/ + metadata, so conflicts can only be (a) generated files — the merge
+#   resolution is irrelevant because this workflow regenerates them from
+#   source right after — or (b) the fork's metadata file, where "ours" is
+#   correct by definition.
+# - Regeneration happens IN THIS RUN: pushes made with the default CI token
+#   do not trigger other workflows, so regen-bot would NOT fire on the sync
+#   push. One workflow = merge + regenerate + test + push, atomically.
+# - Never runs on the template repository itself.
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  TEMPLATE_REPO: DgxSparkLabs/marketplace-template
+
+jobs:
+  sync:
+    if: github.repository != 'DgxSparkLabs/marketplace-template'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # full history — required to merge the template branch
+      - uses: astral-sh/setup-uv@v5
+      - name: Merge template/main (fork content wins conflicts)
+        id: merge
+        run: |
+          git config user.name "marketplace-generator"
+          git config user.email "generator@dgxsparklabs.invalid"
+          git remote add template "https://github.com/${TEMPLATE_REPO}"
+          git fetch template main
+          if git merge-base --is-ancestor template/main HEAD; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Already up to date with the template."
+            exit 0
+          fi
+          if ! git merge -X ours --no-edit template/main; then
+            # -X ours resolves content conflicts but not file-level ones
+            # (e.g. template deleted a file this fork modified). Policy is
+            # the same: the fork's state wins; deletions of files the fork
+            # never touched merge cleanly anyway.
+            git status --porcelain | awk '$1 ~ /U|AA|DD/ {print $2}' | while read -r p; do
+              git checkout --ours -- "$p" 2>/dev/null && git add -- "$p" || git rm -q -- "$p"
+            done
+            git commit --no-edit
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Regenerate, validate, test (under this fork's identity)
+        if: steps.merge.outputs.changed == 'true'
+        run: |
+          uv run scripts/validate_source.py
+          uv run scripts/generate_manifest.py
+          uv run scripts/tasks.py test
+      - name: Push the update
+        if: steps.merge.outputs.changed == 'true'
+        run: |
+          git add -A
+          git diff --cached --quiet || git commit -m "chore(generated): regenerate after template sync"
+          git push

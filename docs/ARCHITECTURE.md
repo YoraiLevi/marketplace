@@ -15,7 +15,7 @@ Everything in the repo is one of two things; nothing is both.
 **Humans edit (source intent):**
 
 - `src/.metadata-MARKETPLACE.toml` — marketplace identity (name, owner, repo URL, description). The one file a forker must edit.
-- `src/skills/<plugin>/` — skill content: `SKILL.md` (solo layout) or `skills/<name>/SKILL.md` (multi layout).
+- `src/skills/<plugin>/` — skill content: `SKILL.md` (solo layout) or `skills/<name>/SKILL.md` (multi layout). Forks own this tree outright — adding, editing, and deleting anything (the shipped examples included) is supported; nothing in the machinery assumes a specific skill exists.
 - `src/skills/<plugin>/.metadata-SKILL.toml` — optional plugin-level metadata; required for the multi layout, where no single SKILL.md can supply the marketplace-listing `description`. Only `description` is read (rule R6).
 
 `.metadata-*.toml` is the convention for all operator-edited metadata: dot-prefixed like `.env` — a fork edits these files and ships its own values. Source trees never contain `.claude-plugin/`; that shape belongs exclusively to generated output (R6 rejects a source `.claude-plugin/` outright).

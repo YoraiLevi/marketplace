@@ -40,6 +40,26 @@ def _pick_example(src_dir: Path, multi: bool) -> str | None:
     return None
 
 
+def _builtin_template(name: str) -> str:
+    """Minimal solo-layout SKILL.md used when no example exists to copy.
+
+    Forks own src/ entirely and may delete the shipped examples; scaffolding
+    must keep working from this built-in template afterwards.
+    """
+    lines = [
+        "---",
+        "name: " + name,
+        "description: TODO - one-line description shown in the marketplace listing.",
+        "allowed-tools:",
+        "  - Bash",
+        "---",
+        "",
+        "TODO: instructions the model follows when this skill is invoked.",
+        "",
+    ]
+    return chr(10).join(lines)
+
+
 def main() -> int:
     p = argparse.ArgumentParser(
         description="Scaffold a new construct source dir from the example template."
@@ -63,19 +83,25 @@ def main() -> int:
     construct = CONSTRUCTS[args.type]
     src_dir = construct.source_directory
     example = _pick_example(src_dir, args.multi)
-    if example is None:
-        print(f"error: no example template found under {src_dir}", file=sys.stderr)
-        return 1
 
     dest = src_dir / args.name
     if dest.exists():
         print(f"error: {dest} already exists", file=sys.stderr)
         return 1
 
-    shutil.copytree(
-        src_dir / example, dest,
-        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
-    )
+    if example is None:
+        # Examples deleted (fork-owned src/) - scaffold from the built-in
+        # minimal solo-layout template instead of copying.
+        dest.mkdir(parents=True)
+        (dest / "SKILL.md").write_text(
+            _builtin_template(args.name), encoding="utf-8", newline=""
+        )
+        example = "built-in template"
+    else:
+        shutil.copytree(
+            src_dir / example, dest,
+            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+        )
 
     plugin = f"{construct.prefix}-{args.name}"
     rel = dest.relative_to(REPO_ROOT).as_posix()

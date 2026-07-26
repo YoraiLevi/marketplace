@@ -215,9 +215,23 @@ class TestNewConstruct(unittest.TestCase):
         self.assertFalse(new_construct.KEBAB.match("UPPER"))
 
     def test_pick_example_prefers_single_or_multi(self):
+        # Forks may delete the shipped examples (they own src/ entirely);
+        # the preference order is only testable while examples exist.
         src = CONSTRUCTS["skill"].source_directory
+        available = {d.name for d in src.iterdir() if d.is_dir()}
+        if "example-single" not in available or "example-multi" not in available:
+            self.skipTest("shipped examples not present (fork-owned src/)")
         self.assertEqual(new_construct._pick_example(src, multi=False), "example-single")
         self.assertEqual(new_construct._pick_example(src, multi=True), "example-multi")
+
+    def test_scaffold_falls_back_without_examples(self):
+        # A fork that deleted the examples must still be able to scaffold.
+        with tempfile.TemporaryDirectory() as t:
+            empty = Path(t)
+            self.assertIsNone(new_construct._pick_example(empty, multi=False))
+            content = new_construct._builtin_template("my-skill")
+            self.assertIn("name: my-skill", content)
+            self.assertIn("description:", content)
 
 
 if __name__ == "__main__":

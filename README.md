@@ -1,6 +1,6 @@
 # Claude Code Skill Marketplace — fork-ready template
 
-A **template marketplace for Claude Code skills**. Fork it, drop skill folders into `src/skills/`, push — CI packages and publishes them, and anyone can install your skills with two `claude` commands. You never run the generator; the only thing you touch is `src/skills/`.
+A **template marketplace for Claude Code skills**. Fork it, drop skill folders into `src/skills/`, push — CI packages and publishes them, and anyone can install your skills with two `claude` commands. You never run the generator; everything you own lives in `src/` — add, change, or delete anything there, including the shipped examples.
 
 ```
 you fork this repo
@@ -57,7 +57,7 @@ Working locally and want the full gate before pushing? `uv run scripts/tasks.py 
 
 This template is maintained **as software**: bug fixes, CI improvements, and doc
 updates land upstream, and forked marketplaces are *intended* to receive them.
-Because you only ever edit `src/skills/` and `src/.metadata-MARKETPLACE.toml`,
+Because everything you own lives in `src/` (and the template never overrides your side of it),
 updates merge underneath your content without touching it. The shipped
 `sync-template` workflow checks the template **daily** and merges + republishes
 on its own — you do nothing. Details, the manual recipe, and the one warning

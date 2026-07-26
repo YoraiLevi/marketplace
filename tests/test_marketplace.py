@@ -69,28 +69,6 @@ class TestSourceLayout(unittest.TestCase):
                     f"{construct_id}: source_directory {construct.source_directory} does not exist",
                 )
 
-    def test_examples_present_per_construct(self):
-        """Each construct source dir must contain at least one ``example*`` subdir.
-
-        Accepts any of: ``example/`` (legacy + rule), ``example-single/``,
-        ``example-multi/``, or per-event names like ``example-userpromptsubmit/``
-        (hooks). The construct just needs to ship at least one reference plugin
-        a contributor can copy.
-        """
-        for construct_id, construct in CONSTRUCTS.items():
-            with self.subTest(construct=construct_id):
-                if not construct.source_directory.exists():
-                    self.fail(f"{construct_id}: source_directory missing")
-                example_dirs = [
-                    d for d in construct.source_directory.iterdir()
-                    if d.is_dir() and d.name.startswith("example")
-                ]
-                self.assertGreater(
-                    len(example_dirs), 0,
-                    f"{construct_id}: no example* subdir in "
-                    f"{construct.source_directory}/",
-                )
-
     def test_instance_names_kebab_case(self):
         """Every instance name across all constructs must be kebab-case."""
         kebab = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -297,20 +275,6 @@ class TestConstructRegistry(unittest.TestCase):
 
 
 # ─── TestPluginCount ──────────────────────────────────────────────────────────
-
-class TestPluginCount(unittest.TestCase):
-    """Plugin count formula — integration test.
-
-    Count = ``individuals + catalog_bundles``. F8 (RESEARCH.md, 2026-05-26)
-    excludes RuleConstruct from the individuals count. Per-construct catch-
-    all bundles were retired 2026-05-27.
-
-    Current expected total: ``26 + 1 = 27`` (was 11 before the 2026-05-28
-    construct-expansion wave). Every Claude-supported non-skill, non-rule
-    construct ships paired example-single + example-multi; hooks ship 9
-    per-event plugins + example-multi (10 total); skill ships its existing
-    two (the example skill plugins; bundles were retired in the #18 scope-down).
-    """
 
 class TestNoSecrets(unittest.TestCase):
     """No tracked file may contain credential-shaped strings."""

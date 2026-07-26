@@ -8,14 +8,16 @@ audience: forkers (marketplace owners)
 Your fork is **your content on top of the template's machinery**, and the split is
 strict by design:
 
-- **Yours**: `src/skills/` and `src/.metadata-MARKETPLACE.toml`. Nothing else needs
-  your edits, ever.
+- **Yours**: all of `src/` — your skills, your metadata, and the shipped examples,
+  which you may freely edit or **delete**. Nothing outside `src/` needs your
+  edits, ever.
 - **The template's**: scripts, workflows, tests, docs, and all generated output.
   These receive fixes and improvements upstream — and your fork is *supposed* to
   pull them in, like software updates.
 
-Because you never edit machinery files, updates merge underneath your content
-without touching it.
+Updates merge underneath your content without touching it, and every conflict
+resolves in your favor — so template updates can never resurrect an example you
+deleted or overwrite a skill you changed.
 
 ## Automatic updates (default — you do nothing)
 
@@ -30,7 +32,15 @@ The `sync-template` workflow ships in this repo. In your fork it:
    pushes. (The regeneration happens inside this workflow because pushes made
    with the CI token do not trigger the separate `regen-bot` run.)
 
-Two GitHub platform caveats:
+**Workflow-file updates — the one GitHub restriction.** The default CI token
+may not push changes under `.github/workflows/`. When a template update touches
+workflow files, the sync ships everything else and opens an issue in your fork
+with the single command that completes it. To make even that automatic (fully
+zero-touch forever), add a repository secret named **`SYNC_TOKEN`** containing a
+fine-grained PAT for your fork with **Contents: write** and **Workflows: write**
+— the sync uses it automatically when present.
+
+Two more GitHub platform caveats:
 
 - Scheduled workflows only run in forks after you enable Actions (the same
   one-click as in the README checklist).

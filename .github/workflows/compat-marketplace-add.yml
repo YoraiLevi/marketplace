@@ -28,6 +28,10 @@ jobs:
         id: mp
         run: |
           echo "name=$(uv run python -c 'import tomllib;print(tomllib.load(open("src/.metadata-MARKETPLACE.toml","rb"))["marketplace"]["name"])')" >> "$GITHUB_OUTPUT"
+      - name: Pick first published plugin (forks may delete the examples)
+        id: plugin
+        run: |
+          echo "name=$(uv run python -c 'import json;d=json.load(open(".claude-plugin/marketplace.json"));print(d["plugins"][0]["name"] if d["plugins"] else "")')" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup-claude
         id: claude
 
@@ -41,17 +45,19 @@ jobs:
 
       - name: Assert plugin install succeeds
         # CL2: per-plugin install must succeed after marketplace registration
-        run: claude plugin install skill-example-multi@${{ steps.mp.outputs.name }} --scope project
+        if: steps.plugin.outputs.name != ''
+        run: claude plugin install ${{ steps.plugin.outputs.name }}@${{ steps.mp.outputs.name }} --scope project
 
       - name: Assert plugin appears in list
         # CL3: installed plugin must appear in plugin list. Use grep -Fx (exact line)
         # so the substring assertion can't false-positive on a sibling like
         # `skill-example-single` after the post-2026-05-28 expansion.
-        run: claude plugin list | grep -F "skill-example-multi"
+        if: steps.plugin.outputs.name != ''
+        run: claude plugin list | grep -F "${{ steps.plugin.outputs.name }}"
 
       - name: Cleanup
         if: always()
         run: |
-          claude plugin uninstall skill-example-multi --scope project || true
+          claude plugin uninstall ${{ steps.plugin.outputs.name }} --scope project || true
           claude plugin marketplace remove ${{ steps.mp.outputs.name }} || true
 

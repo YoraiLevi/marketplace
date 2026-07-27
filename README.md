@@ -1,10 +1,12 @@
-# Example Marketplace
+# DgxSparkLabs Marketplace Template
 
 <!-- This README is yours on first edit — template updates never overwrite it (see .gitattributes + docs/UPDATING.md). -->
 
-A marketplace of **agentic capabilities** — skills your AI tooling installs in two
-commands — built on a fork-ready template that automates all the packaging,
-publishing, and updating for you.
+**This is the template** — fork it to run your own marketplace of agentic
+capabilities; it automates all the packaging, publishing, and updating for you.
+Its published capabilities are working references (and the `marketplace-operations`
+suite). Looking for DgxSparkLabs' official capabilities? They ship from
+[DgxSparkLabs/marketplace](https://github.com/DgxSparkLabs/marketplace).
 
 **New here? Pick your path:**
 
@@ -18,7 +20,7 @@ publishing, and updating for you.
 
 ```bash
 claude plugin marketplace add DgxSparkLabs/marketplace-template     # register (once)
-claude plugin install skill-example-single@dgxsparklabs-marketplace # install anything
+claude plugin install skill-example-single@dgxsparklabs-template-marketplace
 ```
 
 Browse everything this marketplace publishes — every capability, every install

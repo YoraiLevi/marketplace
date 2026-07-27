@@ -45,6 +45,8 @@ git fetch https://github.com/DgxSparkLabs/marketplace-template main
 git rm -rq .github/workflows && git checkout FETCH_HEAD -- .github/workflows
 git commit -m "chore: apply template workflow updates" && git push
 ```
+> **Always name the branch in the fetch** (`... main`): a bare `git fetch <remote>` can leave `FETCH_HEAD` pointing at a different branch of the template (observed live: it briefly restored pre-cleanup workflows from an archive branch).
+
 
 Fully hands-off alternative: a fine-grained PAT (Contents + Workflows write)
 saved as the `SYNC_TOKEN` repository secret - the sync then updates workflow

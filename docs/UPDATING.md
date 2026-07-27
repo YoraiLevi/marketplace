@@ -87,3 +87,5 @@ Nothing to do. Your skills, your identity, and your users' install commands
 the machinery underneath moved. If an update ever changes something you *do*
 interact with (a metadata field, a layout rule), the template's release notes
 on the GitHub Releases page will say so.
+
+Something about updating misbehaving? Symptom-indexed fixes: [`troubleshooting/`](troubleshooting/).

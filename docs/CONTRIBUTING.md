@@ -49,6 +49,10 @@ Runs, in order: `validate_source.py` (structure + naming standard) → drift che
 - After fixing any bug worth remembering, record it in the fixing PR/issue so the next person can find it by search.
 - Install the pre-push hook once: `pre-commit install` (runs `validate_source.py` on `src/` before each commit).
 
+## Something broke?
+
+Symptom-indexed fixes for the common issues: [`troubleshooting/`](troubleshooting/).
+
 ## Session-local ignores
 
 Working files that belong to your machine, not the template (agent scratch dirs, research caches), do not go in the tracked `.gitignore`. Use a repo-local excludes file instead:

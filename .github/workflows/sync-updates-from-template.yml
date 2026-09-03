@@ -85,7 +85,7 @@ jobs:
       - name: Regenerate, validate, test (under this fork's identity)
         if: steps.merge.outputs.changed == 'true'
         run: |
-          uv run scripts/validate_source.py
+          uv run scripts/lint.py
           uv run scripts/generate_manifest.py
           uv run scripts/tasks.py test
       - name: Push the update

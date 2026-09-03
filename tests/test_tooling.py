@@ -4,10 +4,10 @@
 # dependencies = []
 # ///
 """Tests for the contributor tooling scripts (scripts/new_construct.py,
-scripts/validate_source.py).
+scripts/lint.py).
 
 Validates:
-  - validate_source flags missing description, invalid JSON, a missing
+  - lint flags missing description, invalid JSON, a missing
     ${CLAUDE_PLUGIN_ROOT} reference, and a non-kebab instance dir; passes on
     well-formed sources AND on the real src/ tree.
   - new_construct's kebab guard and example-template selection.
@@ -22,13 +22,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+import lint  # noqa: E402
 import new_construct  # noqa: E402
-import validate_source  # noqa: E402
 from constructs import CONSTRUCTS  # noqa: E402
 from utils import SRC  # noqa: E402
 
-
-class TestValidateSource(unittest.TestCase):
+class TestLintCli(unittest.TestCase):
     def test_good_skill_passes(self):
         with tempfile.TemporaryDirectory() as t:
             d = Path(t) / "skills" / "good"
@@ -36,7 +35,7 @@ class TestValidateSource(unittest.TestCase):
             (d / "SKILL.md").write_text(
                 "---\nname: good\ndescription: A good skill.\n---\nbody\n", encoding="utf-8"
             )
-            self.assertEqual(validate_source.validate([d]), [])
+            self.assertEqual(lint.lint([d]), [])
 
     def test_bad_component_name_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -46,7 +45,8 @@ class TestValidateSource(unittest.TestCase):
                 "---\nname: My Bad Skill\ndescription: x\n---\nbody\n",
                 encoding="utf-8",
             )
-            self.assertTrue(any("N4.1" in p for p in validate_source.validate([d])))
+
+            self.assertTrue(any("naming/skill-name-kebab-case" in p for p in lint.lint([d])))
 
     def test_duplicate_component_names_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -58,7 +58,8 @@ class TestValidateSource(unittest.TestCase):
                     "---\nname: same\ndescription: x\n---\nbody\n",
                     encoding="utf-8",
                 )
-            self.assertTrue(any("N4.3" in p for p in validate_source.validate([d])))
+
+            self.assertTrue(any("naming/skill-name-unique" in p for p in lint.lint([d])))
 
     def test_overlong_instance_dir_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -68,7 +69,8 @@ class TestValidateSource(unittest.TestCase):
                 "---\nname: x\ndescription: x\n---\nbody\n",
                 encoding="utf-8",
             )
-            self.assertTrue(any("N2.2" in p for p in validate_source.validate([d])))
+
+            self.assertTrue(any("naming/folder-length" in p for p in lint.lint([d])))
 
     def test_source_claude_plugin_dir_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -81,7 +83,9 @@ class TestValidateSource(unittest.TestCase):
             (d / ".claude-plugin" / "plugin.json").write_text(
                 '{"description": "x"}', encoding="utf-8"
             )
-            self.assertTrue(any("R6" in p for p in validate_source.validate([d])))
+            self.assertTrue(
+                any("hygiene/no-packaging-in-source" in p for p in lint.lint([d]))
+            )
 
     def test_metadata_toml_stray_key_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -94,7 +98,9 @@ class TestValidateSource(unittest.TestCase):
             (d / ".metadata-SKILL.toml").write_text(
                 'description = "x"\nname = "stale-name"\n', encoding="utf-8"
             )
-            self.assertTrue(any("R6" in p for p in validate_source.validate([d])))
+            self.assertTrue(
+                any("hygiene/metadata-keys" in p for p in lint.lint([d]))
+            )
 
     def test_metadata_toml_invalid_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -105,7 +111,9 @@ class TestValidateSource(unittest.TestCase):
                 encoding="utf-8",
             )
             (d / ".metadata-SKILL.toml").write_text("not = = toml", encoding="utf-8")
-            self.assertTrue(any("R6" in p for p in validate_source.validate([d])))
+            self.assertTrue(
+                any("hygiene/metadata-keys" in p for p in lint.lint([d]))
+            )
 
     def test_multi_layout_name_mismatch_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -116,15 +124,16 @@ class TestValidateSource(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertTrue(
-                any("R8" in p for p in validate_source.validate([sd.parent.parent]))
+                any("hygiene/folder-matches-name" in p for p in lint.lint([sd.parent.parent]))
             )
 
     def test_real_marketplace_identity_passes(self):
-        # N1 runs on the repo's real .metadata-MARKETPLACE.toml in every validate() call;
-        # the good-skill test above passing proves N1 is clean, but assert
-        # explicitly so an identity regression names the right rule.
+        # The identity rules run against the repo's real
+        # .metadata-MARKETPLACE.toml in every lint() call. Filter by RULE ID,
+        # not by message prefix — messages start with a path, so a prefix
+        # filter would match nothing and pass vacuously.
         self.assertFalse(
-            [p for p in validate_source.validate([]) if p.startswith(".metadata-MARKETPLACE")]
+            [p for p in lint.lint([]) if "naming/marketplace-" in p]
         )
 
     def test_missing_description_flagged(self):
@@ -132,7 +141,7 @@ class TestValidateSource(unittest.TestCase):
             d = Path(t) / "skills" / "bad"
             d.mkdir(parents=True)
             (d / "SKILL.md").write_text("---\nname: bad\n---\nbody\n", encoding="utf-8")
-            self.assertTrue(any("description" in p for p in validate_source.validate([d])))
+            self.assertTrue(any("description" in p for p in lint.lint([d])))
 
     def test_missing_plugin_root_ref_flagged(self):
         with tempfile.TemporaryDirectory() as t:
@@ -141,7 +150,7 @@ class TestValidateSource(unittest.TestCase):
             (d / "lsp-config.json").write_text(
                 '{"args": ["${CLAUDE_PLUGIN_ROOT}/nope.py"]}', encoding="utf-8"
             )
-            self.assertTrue(any("nope.py" in p for p in validate_source.validate([d])))
+            self.assertTrue(any("nope.py" in p for p in lint.lint([d])))
 
     def test_present_plugin_root_ref_ok(self):
         with tempfile.TemporaryDirectory() as t:
@@ -151,26 +160,25 @@ class TestValidateSource(unittest.TestCase):
             (d / "lsp-config.json").write_text(
                 '{"args": ["${CLAUDE_PLUGIN_ROOT}/server.py"]}', encoding="utf-8"
             )
-            self.assertEqual(validate_source.validate([d]), [])
+            self.assertEqual(lint.lint([d]), [])
 
     def test_invalid_json_flagged(self):
         with tempfile.TemporaryDirectory() as t:
             d = Path(t) / "mcp-servers" / "x"
             d.mkdir(parents=True)
             (d / "mcp-config.json").write_text("{not json", encoding="utf-8")
-            self.assertTrue(any("invalid JSON" in p for p in validate_source.validate([d])))
+            self.assertTrue(any("invalid JSON" in p for p in lint.lint([d])))
 
     def test_non_kebab_instance_dir_flagged(self):
         with tempfile.TemporaryDirectory() as t:
             d = Path(t) / "skills" / "Bad_Name"
             d.mkdir(parents=True)
             (d / "SKILL.md").write_text("---\ndescription: x\n---\n", encoding="utf-8")
-            self.assertTrue(any("kebab-case" in p for p in validate_source.validate([d])))
+            self.assertTrue(any("kebab-case" in p for p in lint.lint([d])))
 
     def test_real_src_is_clean(self):
         # The shipped sources must pass their own validator.
-        self.assertEqual(validate_source.validate([SRC]), [])
-
+        self.assertEqual(lint.lint([SRC]), [])
 
 class TestDriftGateReadOnly(unittest.TestCase):
     """Regression: --check must be read-only and deterministic (fail twice).
@@ -207,7 +215,6 @@ class TestDriftGateReadOnly(unittest.TestCase):
         finally:
             inv.write_bytes(original)
 
-
 class TestNewConstruct(unittest.TestCase):
     def test_kebab_regex(self):
         self.assertTrue(new_construct.KEBAB.match("telegram-notify"))
@@ -232,7 +239,6 @@ class TestNewConstruct(unittest.TestCase):
             content = new_construct._builtin_template("my-skill")
             self.assertIn("name: my-skill", content)
             self.assertIn("description:", content)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

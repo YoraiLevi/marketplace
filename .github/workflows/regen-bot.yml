@@ -43,7 +43,7 @@ jobs:
           ref: ${{ github.event_name == 'push' && github.ref_name || github.event.pull_request.head.ref }}
       - uses: astral-sh/setup-uv@v5
       - name: Validate sources (naming standard, issue #19)
-        run: uv run scripts/validate_source.py
+        run: uv run scripts/lint.py
       - name: Regenerate from src/
         run: uv run scripts/generate_manifest.py
       - name: Run test suites against regenerated output

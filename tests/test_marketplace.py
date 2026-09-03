@@ -38,7 +38,7 @@ from platforms import (
     PLATFORMS,
     ClaudeCodePlatform,
 )
-from utils import MARKETPLACE_JSON, scan_source_dir
+from utils import MARKETPLACE_JSON, scan_source_dir, skill_components
 
 MARKETPLACE_TOML = REPO_ROOT / "src" / ".metadata-MARKETPLACE.toml"
 GENERATED_DIR = REPO_ROOT / "_generated" / "claude-code"
@@ -164,11 +164,13 @@ class TestGeneratedPlugins(unittest.TestCase):
                     )
 
     def test_skill_plugin_layouts(self):
-        """For every source skill plugin, the generated plugin.json's ``skills``
-        field matches the source filesystem layout.
+        """Both source layouts publish ONE generated shape.
 
-        - Solo (root ``SKILL.md`` at plugin root) → ``["./"]``.
-        - Multi (one or more ``skills/<x>/SKILL.md`` under ``skills/``) → ``["./skills/"]``.
+        Solo (root ``SKILL.md``) and multi (``skills/<x>/SKILL.md``) both emit
+        ``skills: ["./skills/"]`` with every skill under ``skills/``. A plugin
+        that declares its own root instead is what
+        ``hygiene/no-self-referential-skills-path`` forbids: portable consumers
+        resolve it to the plugin directory and copy the plugin into itself.
 
         Parameterized across every skill source plugin via
         ``scan_source_dir`` + ``subTest`` so a third skill plugin added
@@ -176,32 +178,42 @@ class TestGeneratedPlugins(unittest.TestCase):
         """
         skill = next(c for c in CONSTRUCTS.values() if isinstance(c, SkillConstruct))
         for source_name in scan_source_dir(skill.source_directory):
-            src = skill.source_directory / source_name
             gen_dir = GENERATED_DIR / f"skill-{source_name}"
             gen_pj = gen_dir / ".claude-plugin" / "plugin.json"
             with self.subTest(plugin=source_name):
                 data = json.loads(gen_pj.read_text(encoding="utf-8"))
-                if (src / "SKILL.md").exists():
-                    # Solo layout: skills=["./"], one SKILL.md at plugin root
-                    self.assertEqual(
-                        data["skills"], ["./"],
-                        f"solo skill {source_name}: skills field mismatch",
-                    )
+                self.assertEqual(
+                    data["skills"], ["./skills/"],
+                    f"skill {source_name}: skills field mismatch",
+                )
+                self.assertFalse(
+                    (gen_dir / "SKILL.md").exists(),
+                    f"skill {source_name}: SKILL.md must not sit at the plugin "
+                    f"root — it belongs under skills/<name>/",
+                )
+                skills_subdir = gen_dir / "skills"
+                self.assertTrue(
+                    any(skills_subdir.rglob("SKILL.md")),
+                    f"skill {source_name}: no SKILL.md under skills/",
+                )
+
+    def test_generated_skill_dir_matches_frontmatter_name(self):
+        """Every published skill folder is named for its frontmatter ``name``.
+
+        This is what makes the two names un-divergeable. Claude Code invokes by
+        frontmatter ``name``; APM and other portable consumers key on the
+        directory. Deriving the directory from the name means they agree by
+        construction rather than by a lint rule chasing them.
+        """
+        skill = next(c for c in CONSTRUCTS.values() if isinstance(c, SkillConstruct))
+        for source_name in scan_source_dir(skill.source_directory):
+            src = skill.source_directory / source_name
+            gen_dir = GENERATED_DIR / f"skill-{source_name}"
+            for comp in skill_components(src):
+                with self.subTest(plugin=source_name, skill=comp["name"]):
                     self.assertTrue(
-                        (gen_dir / "SKILL.md").exists(),
-                        f"solo skill {source_name}: SKILL.md missing at plugin root",
-                    )
-                else:
-                    # Multi layout: skills=["./skills/"], at least one SKILL.md
-                    # under a skills/<x>/ subdir
-                    self.assertEqual(
-                        data["skills"], ["./skills/"],
-                        f"multi skill {source_name}: skills field mismatch",
-                    )
-                    skills_subdir = gen_dir / "skills"
-                    self.assertTrue(
-                        any(skills_subdir.rglob("SKILL.md")),
-                        f"multi skill {source_name}: no SKILL.md under skills/",
+                        (gen_dir / "skills" / comp["name"] / "SKILL.md").exists(),
+                        f"{source_name}: expected skills/{comp['name']}/SKILL.md",
                     )
 
 class TestMarketplaceJson(unittest.TestCase):
@@ -272,6 +284,165 @@ class TestConstructRegistry(unittest.TestCase):
                     construct.prefix, kebab,
                     f"{construct_id}: prefix '{construct.prefix}' is not kebab-case",
                 )
+
+
+class TestLintRegistry(unittest.TestCase):
+    """Behavioural guarantees about the lint-rule registry.
+
+    These assert what the rules DO, not how source files are spelled: an
+    earlier guard grepped the validator's text for rule ids and stayed green
+    with the enforcement deleted and the id left in a comment. The registry
+    now owns each check, so reachability is proven by execution.
+    """
+
+    def test_every_rule_is_provoked_by_its_own_counterexample(self):
+        """No rule can be published as enforced yet be dead.
+
+        The repo's 'verify a guard by making it fail once' rule, applied
+        automatically to every rule, forever.
+        """
+        import tempfile
+
+        from lint import run
+        from lint_rules import LINT_RULES
+
+        for rule in LINT_RULES:
+            with self.subTest(rule=rule.id):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    rule.counterexample(root)
+                    fired = {f.rule.id for f in run(root, {rule.stage})}
+                    self.assertIn(
+                        rule.id, fired,
+                        f"{rule.id}: its counterexample did not trigger it "
+                        f"(fired: {sorted(fired)}). The rule is unreachable.",
+                    )
+
+    def test_severity_is_honoured_by_the_driver(self):
+        """An advisory rule must never appear in the publish-blocking output."""
+        import tempfile
+
+        from lint import run
+        from lint_rules import LINT_RULES, Severity
+
+        warnings = [r for r in LINT_RULES if r.severity is Severity.WARNING]
+        self.assertTrue(warnings, "expected at least one advisory rule")
+        for rule in warnings:
+            with self.subTest(rule=rule.id):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    rule.counterexample(root)
+                    findings = run(root, {rule.stage})
+                    self.assertIn(rule.id, {f.rule.id for f in findings})
+                    blocking = [
+                        f for f in findings
+                        if f.rule.id == rule.id and f.rule.severity is Severity.ERROR
+                    ]
+                    self.assertEqual(
+                        blocking, [],
+                        f"{rule.id} is advisory but was reported as blocking",
+                    )
+
+    def test_rule_ids_are_topic_slash_slug(self):
+        from lint_rules import LINT_RULES
+        from lint_rules.model import RULE_ID
+        for r in LINT_RULES:
+            with self.subTest(rule=r.id):
+                self.assertRegex(r.id, RULE_ID)
+        ids = [r.id for r in LINT_RULES]
+        self.assertEqual(len(ids), len(set(ids)), "duplicate rule ids")
+
+    def test_constructs_reference_registered_constructs(self):
+        """Guards the {"skils"} typo: a rule naming a construct nobody
+        registered would silently run against nothing, forever."""
+        from lint_rules import LINT_RULES
+        known = set(CONSTRUCTS)
+        for r in LINT_RULES:
+            with self.subTest(rule=r.id):
+                named = set(r.constructs) - {"*"}
+                self.assertTrue(
+                    named <= known,
+                    f"{r.id}: constructs {sorted(named - known)} are not in "
+                    f"the CONSTRUCTS registry {sorted(known)}",
+                )
+
+    def test_every_rule_reaches_the_generated_list(self):
+        """Every declared rule has a section in _generated/LINTING_RULES.md."""
+        from lint_rules import LINT_RULES
+        doc = (REPO_ROOT / "_generated" / "LINTING_RULES.md").read_text(encoding="utf-8")
+        nl = chr(10)
+        missing = sorted(
+            r.id for r in LINT_RULES if f"### {r.id}{nl}" not in doc + nl
+        )
+        self.assertEqual(
+            missing, [], f"rules absent from _generated/LINTING_RULES.md: {missing}"
+        )
+
+    def test_doc_anchors_into_the_rule_list_resolve(self):
+        """Every `LINTING_RULES.md#anchor` link in hand-written docs points at
+        a heading that the generated file actually contains.
+
+        Prose never explains a rule — it deep-links into the generated list.
+        That makes each link a contract with the generator's anchor scheme; a
+        renamed rule would rot the link silently without this check.
+        """
+        doc = (REPO_ROOT / "_generated" / "LINTING_RULES.md").read_text(encoding="utf-8")
+        valid = set()
+        for line in doc.splitlines():
+            if line.startswith("#"):
+                heading = line.lstrip("#").strip()
+                valid.add("".join(
+                    ch if (ch.isalnum() or ch == "-") else "-" if ch == " " else ""
+                    for ch in heading.lower()
+                ))
+        sources = [REPO_ROOT / "AGENTS.md", *sorted(
+            p for p in (REPO_ROOT / "docs").rglob("*.md")
+            if not any(part.startswith(".") for part in p.relative_to(REPO_ROOT / "docs").parts)
+        )]
+        pattern = re.compile(r"LINTING_RULES\.md#([A-Za-z0-9-]+)")
+        for src in sources:
+            for anchor in pattern.findall(src.read_text(encoding="utf-8")):
+                with self.subTest(doc=src.name, anchor=anchor):
+                    self.assertIn(
+                        anchor, valid,
+                        f"{src}: links LINTING_RULES.md#{anchor}, but the "
+                        f"generated file has no such heading",
+                    )
+
+    def test_a_rule_cannot_be_declared_without_a_counterexample(self):
+        """The decorator refuses an unproven rule — the mandate is structural."""
+        from lint_rules import model
+
+        with self.assertRaises(ValueError) as ctx:
+            @model.lint_rule(
+                "content/never-registered", stage=model.Stage.FILE,
+                constructs=model.ALL, applies_to="x", requirement="x", why="x",
+            )
+            def _never(ctx_):  # pragma: no cover — must not register
+                yield model.Violation("x", "x")
+
+        self.assertIn("counterexample", str(ctx.exception))
+        self.assertNotIn(
+            "content/never-registered", {r.id for r in model.REGISTRY}
+        )
+
+    def test_message_carries_the_rule_id_exactly_once(self):
+        """Ids are attached by the reporter alone — a check that formatted its
+        own id would show it twice."""
+        import tempfile
+
+        from lint import run
+        from lint_rules import LINT_RULES
+
+        for rule in LINT_RULES:
+            with self.subTest(rule=rule.id):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    rule.counterexample(root)
+                    for f in run(root, {rule.stage}):
+                        if f.rule.id == rule.id:
+                            self.assertEqual(f.message().count(f"({rule.id})"), 1)
+                            self.assertNotIn(f"({rule.id})", f.violation.detail)
 
 
 # ─── TestPluginCount ──────────────────────────────────────────────────────────

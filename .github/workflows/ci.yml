@@ -17,7 +17,7 @@ jobs:
           version: "latest"
 
       - name: Validate sources (naming standard N1/N2/N4, issue #19)
-        run: uv run scripts/validate_source.py
+        run: uv run scripts/lint.py
 
       - name: Validate generated manifests are in sync with sources
         run: uv run scripts/generate_manifest.py --check

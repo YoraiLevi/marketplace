@@ -109,10 +109,16 @@ class SkillConstruct:
     # `<brand>-<prefix>-<source-dir>`, e.g. `dgxsparklabs-skill-example`).
     # The slash form is `/dgxsparklabs-skill-example:<frontmatter-name>`.
     #
-    # Two source layouts are supported per plugin (build_plugin_json picks):
-    #   1. Solo:  skills/<plugin>/SKILL.md                       → skills: ["./"]
+    # Two source layouts are supported per plugin, and BOTH compile to the
+    # same generated shape — `skills/<skill-name>/SKILL.md` declared as
+    # `skills: ["./skills/"]`:
+    #   1. Solo:  skills/<plugin>/SKILL.md
     #   2. Multi: skills/<plugin>/skills/<a>/SKILL.md
-    #             skills/<plugin>/skills/<b>/SKILL.md  ...        → skills: ["./skills/"]
+    #             skills/<plugin>/skills/<b>/SKILL.md  ...
+    # Solo is an authoring convenience, not a packaging shape. The generator
+    # never emits a self-referential `skills: ["./"]`: portable consumers
+    # resolve it to the plugin root and copy the plugin into itself (see
+    # `hygiene/no-self-referential-skills-path` and microsoft/apm#2556).
     # The plugin-level description for the multi layout is operator-authored
     # at skills/<plugin>/.metadata-SKILL.toml (read by
     # _read_source_plugin_description), since there's no single SKILL.md to
@@ -170,19 +176,43 @@ class SkillConstruct:
             )
         else:
             base["description"] = _read_source_plugin_description(src, name)
-        base["skills"] = ["./"] if has_root else ["./skills/"]
+        # Both layouts land at skills/<skill-name>/SKILL.md in the generated
+        # plugin, so the declared path is the same for both.
+        base["skills"] = ["./skills/"]
         base["keywords"] = ["skill", name]
         return base
 
     def emit(self, name: str, target_dir: Path) -> None:
-        # Copy entire source tree (SKILL.md or skills/<n>/SKILL.md, plus
-        # any scripts/ references/ etc.)
-        shutil.copytree(
-            self.source_directory / name,
-            target_dir,
-            dirs_exist_ok=True,
-            ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".metadata-*"),
-        )
+        src = self.source_directory / name
+        junk = ["__pycache__", "*.pyc", ".metadata-*"]
+        if (src / "SKILL.md").exists():
+            # Solo source layout → generated multi shape. The skill's folder is
+            # named for its frontmatter ``name`` (``skill_components`` resolves
+            # it, falling back to the source folder), so the name Claude Code
+            # surfaces and the directory every other consumer keys on are the
+            # same string and cannot drift.
+            skill_name = skill_components(src)[0]["name"]
+            shutil.copytree(
+                src,
+                target_dir / "skills" / skill_name,
+                dirs_exist_ok=True,
+                # README.md is plugin-level documentation, not a skill
+                # resource — it is lifted back to the plugin root below.
+                ignore=shutil.ignore_patterns(*junk, "README.md"),
+            )
+            readme = src / "README.md"
+            if readme.exists():
+                target_dir.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(readme, target_dir / "README.md")
+        else:
+            # Multi source layout: already skills/<n>/SKILL.md, copy verbatim
+            # (plus any scripts/ references/ etc.).
+            shutil.copytree(
+                src,
+                target_dir,
+                dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns(*junk),
+            )
         # Write plugin.json under .claude-plugin/ (overrides any source copy)
         write_plugin_json(target_dir, self.build_plugin_json(name))
 
@@ -205,7 +235,6 @@ class SkillConstruct:
         src = self.source_directory / name
         comps = skill_components(src)
         desc = self.build_plugin_json(name)["description"]
-        solo = any(c["dir"] is None for c in comps)
         L: list[str] = []
         A = L.append
         A(f"### {entry}")
@@ -244,21 +273,20 @@ class SkillConstruct:
         A("")
         A("```bash")
         A(f"git clone https://github.com/{slug} /tmp/mp" if "/" in slug and not slug.startswith("http") else f"git clone {slug} /tmp/mp")
-        if solo:
-            A(f"cp -r /tmp/mp/src/skills/{name} ~/.claude/skills/{name}")
-        else:
-            for c in comps:
-                A(f"cp -r /tmp/mp/src/skills/{name}/skills/{c['dir']} ~/.claude/skills/{c['dir']}")
+        # The destination is the skill's NAME, not its source folder: that is
+        # what the agent invokes, and in the solo layout the source folder
+        # names the plugin instead. ``c["dir"]`` is None for a solo component
+        # (the plugin folder is the skill folder).
+        for c in comps:
+            sub = "" if c["dir"] is None else f"/skills/{c['dir']}"
+            A(f"cp -r /tmp/mp/src/skills/{name}{sub} ~/.claude/skills/{c['name']}")
         A("```")
         A("")
         A("###### Deletion")
         A("")
         A("```bash")
-        if solo:
-            A(f"rm -rf ~/.claude/skills/{name}")
-        else:
-            for c in comps:
-                A(f"rm -rf ~/.claude/skills/{c['dir']}")
+        for c in comps:
+            A(f"rm -rf ~/.claude/skills/{c['name']}")
         A("```")
         A("")
         A("##### Invocation")

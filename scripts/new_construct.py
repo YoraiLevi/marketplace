@@ -108,7 +108,7 @@ def main() -> int:
     print(f"Created {rel}/ (from {example})")
     print("Next:")
     print(f"  1. Edit the copied files - set name:/description: and the body.")
-    print(f"  2. uv run scripts/validate_source.py {rel}")
+    print(f"  2. uv run scripts/lint.py {rel}")
     print(f"  3. git add/commit/push - CI regenerates all manifests for you")
     print(f"     (optional local preview: uv run scripts/tasks.py verify)")
     print(f"  -> plugin '{plugin}' appears in the marketplace; no marketplace-metadata edit needed.")

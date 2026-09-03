@@ -1,6 +1,6 @@
 # Agent instructions
 
-This is a fork-ready template marketplace for Claude Code skills — not a general software project. Identity lives in `src/.metadata-MARKETPLACE.toml`; contributor content lives under `src/skills/<name>/`; everything else under `_generated/`, `.claude-plugin/`, and `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` is produced by `scripts/generate_manifest.py` and must never be hand-edited.
+This is a fork-ready template marketplace for Claude Code skills — not a general software project. Identity lives in `src/.metadata-MARKETPLACE.toml`; contributor content lives under `src/skills/<name>/`; everything else under `_generated/` and `.claude-plugin/` is produced by `scripts/generate_manifest.py` and must never be hand-edited.
 
 ## Where to find things
 
@@ -9,6 +9,7 @@ This is a fork-ready template marketplace for Claude Code skills — not a gener
 - `docs/ARCHITECTURE.md` — generator phases, the naming chain, CI layout.
 - `docs/capabilities/skills.md` — the SKILL.md format as enforced.
 - `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — generated catalog + install instructions. Never hardcode counts or install commands in prose.
+- `_generated/LINTING_RULES.md` — generated lint-rule list; declare rules in `scripts/lint_rules/`, never in prose.
 - Project history and roadmap live in GitHub issues (start at #18); pre-cleanup project memory is preserved on the `project-memory` branch.
 
 ## Hard rules
@@ -19,3 +20,4 @@ This is a fork-ready template marketplace for Claude Code skills — not a gener
 - **Verify with the real gate:** `uv run scripts/tasks.py verify` (source validation → drift check → suites with a nonzero-test-count assertion → `claude plugin validate`). Never run suite files directly (`uv run tests/<suite>.py`) — direct execution can pass vacuously; use `uv run scripts/tasks.py test` or `uv run -m unittest -v tests.<suite>`.
 - **Verify guards by making them fail once.** A check only ever seen green proves nothing.
 - **Generated output is never edited by hand** — it is deleted and rebuilt from scratch every run.
+- **Every document with headings carries a table of contents, and every heading is immediately followed by a link back to it** (`[↑ Table of contents](#table-of-contents)`) — the link belongs under the heading, not at the end of the section. Applies to hand-written docs and generated output alike; `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` is the reference implementation.

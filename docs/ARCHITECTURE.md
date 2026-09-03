@@ -16,15 +16,16 @@ Everything in the repo is one of two things; nothing is both.
 
 - `src/.metadata-MARKETPLACE.toml` — marketplace identity (name, owner, repo URL, description). The one file a forker must edit.
 - `src/skills/<plugin>/` — skill content: `SKILL.md` (solo layout) or `skills/<name>/SKILL.md` (multi layout). Forks own this tree outright — adding, editing, and deleting anything (the shipped examples included) is supported; nothing in the machinery assumes a specific skill exists.
-- `src/skills/<plugin>/.metadata-SKILL.toml` — optional plugin-level metadata; required for the multi layout, where no single SKILL.md can supply the marketplace-listing `description`. Only `description` is read (rule R6).
+- `src/skills/<plugin>/.metadata-SKILL.toml` — optional plugin-level metadata; required for the multi layout, where no single SKILL.md can supply the marketplace-listing `description`. Only `description` is read ([hygiene/metadata-keys](../_generated/LINTING_RULES.md#hygienemetadata-keys)).
 
-`.metadata-*.toml` is the convention for all operator-edited metadata: dot-prefixed like `.env` — a fork edits these files and ships its own values. Source trees never contain `.claude-plugin/`; that shape belongs exclusively to generated output (R6 rejects a source `.claude-plugin/` outright).
+`.metadata-*.toml` is the convention for all operator-edited metadata: dot-prefixed like `.env` — a fork edits these files and ships its own values. Source trees never contain `.claude-plugin/`; that shape belongs exclusively to generated output ([hygiene/no-packaging-in-source](../_generated/LINTING_RULES.md#hygieneno-packaging-in-source) rejects a source `.claude-plugin/` outright).
 
 **Generator owns (regenerated from scratch every run — hand-edits are lost):**
 
-- `_generated/claude-code/<plugin>/` — the installable plugins, platform-namespaced. Claude Code is the only platform today; a revived platform (issues #28–#36) gets a sibling `_generated/<platform>/` and never mixes.
+- `_generated/claude-code/<plugin>/` — the installable plugins, platform-namespaced. Claude Code is the only platform today; a revived platform (issues #28–#36) gets a sibling `_generated/<platform>/` and never mixes. Both source layouts converge here on one shape — `skills/<skill-name>/SKILL.md` declared as `skills: ["./skills/"]` — so a published plugin never points at its own root.
 - `.claude-plugin/marketplace.json` — the manifest `claude plugin marketplace add` reads.
 - `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — the catalog: every plugin, every install/removal path, invocation tables — rendered with this marketplace's identity.
+- `_generated/LINTING_RULES.md` — every lint rule this marketplace enforces, rendered from the `scripts/lint_rules/` registry. Each rule owns its check and a mandatory counterexample; `tests/test_marketplace.py` (`TestLintRegistry`) proves every rule reachable by executing that counterexample, so a rule cannot be published as enforced while being dead.
 
 `docs/` now contains ONLY human-authored prose; everything machine-written lives under `_generated/`.
 
@@ -38,18 +39,19 @@ Everything in the repo is one of two things; nothing is both.
 | 1 | `_generated/claude-code/skill-<name>/` + its `.claude-plugin/plugin.json` | one per source plugin; `Construct.emit` copies content, composes plugin.json |
 | 5 | `.claude-plugin/marketplace.json` | from in-memory entries, sorted for deterministic diffs |
 | 7 | `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` | generated catalog + installation instructions; drift-checked like the manifests |
+| 8 | `_generated/LINTING_RULES.md` | the lint-rule list, rendered from the `scripts/lint_rules/` registry; drift-checked |
 
 Phase numbering is deliberately sparse: the retired phases (1.5/2a/3/4/4.5/5.5/6 — per-platform manifests, bundles, mirrors) emitted per-platform manifests, bundles, and mirrors for removed capabilities — see git history and #18's child issues.
 
 ## The name chain (see issue #19 for the enforced standard)
 
-`src/.metadata-MARKETPLACE.toml` `name` → marketplace identity (after `@` in install commands); minus its `-marketplace` suffix → the **brand**. Install name = `skill-<srcdir>` (`generate_manifest.py`, marketplace entry). Slash namespace = `<brand>-skill-<srcdir>` (`constructs.py`, `_base_plugin_shape`). Component name = SKILL.md frontmatter `name:`. Enforcement: `scripts/validate_source.py` (rules N1/N2/N4/R6/R8 on sources) + `tests/test_marketplace.py` `TestGeneratedPlugins.test_individual_plugin_name_is_unique_brand_namespace` (N3/N5 on generated output).
+`src/.metadata-MARKETPLACE.toml` `name` → marketplace identity (after `@` in install commands); minus its `-marketplace` suffix → the **brand**. Install name = `skill-<srcdir>` (`generate_manifest.py`, marketplace entry). Slash namespace = `<brand>-skill-<srcdir>` (`constructs.py`, `_base_plugin_shape`). Component name = SKILL.md frontmatter `name:`. Enforcement: `scripts/lint.py` — every rule, its rationale, and a captured example failure are in [`_generated/LINTING_RULES.md`](../_generated/LINTING_RULES.md). `TestGeneratedPlugins.test_individual_plugin_name_is_unique_brand_namespace` double-covers the composed-name invariant.
 
 ## Verification chain
 
-`uv run scripts/tasks.py verify` = `validate_source.py` → `--check` drift gate → test suites (invoked via `-m unittest` with a nonzero-test-count assertion — see the `project-memory` branch (PITFALLS, "vacuous green")) → `claude plugin validate ./`. CI mirrors the same steps; compat workflows additionally exercise registration → install → listing against the real CLI.
+`uv run scripts/tasks.py verify` = `lint.py` → `--check` drift gate → test suites (invoked via `-m unittest` with a nonzero-test-count assertion — see the `project-memory` branch (PITFALLS, "vacuous green")) → `claude plugin validate ./`. CI mirrors the same steps; compat workflows additionally exercise registration → install → listing against the real CLI.
 
 ## How to extend
 
 - **New skill**: drop a folder — no code.
-- **New construct type / platform** (re-expansion): new class implementing the protocol + registry entry; follow the construct/platform re-expansion issue for that capability and pass the #19 naming gate before shipping.
+- **New construct type / platform** (re-expansion): new class implementing the protocol + registry entry, plus a `scripts/lint_rules/` topic module for its construct-specific rules (universal rules cover it automatically via `constructs=ALL`). Before starting, check the candidate for **upstream absorption** — a capability folded into another capability has no surfaces of its own to standardise (see issue #20: slash commands were absorbed into skills) — then pass the #19 naming gate before shipping.

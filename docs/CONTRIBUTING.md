@@ -38,7 +38,7 @@ Full format reference: [`capabilities/skills.md`](capabilities/skills.md). Quick
 uv run scripts/tasks.py verify
 ```
 
-Runs, in order: `lint.py` (structure + naming standard) → drift check → the test suites (`test_marketplace`, `test_tooling` — with a nonzero-test-count assertion) → `claude plugin validate ./`. All must pass. CI runs the same steps split across `ci.yml` (validate → drift → suites) and `compat-validate.yml` (`claude plugin validate`); `tests/run-ci-local.sh` replays the CI workflow locally via act if you want the exact workflow bytes.
+Runs, in order: `lint.py` (structure + naming standard) → drift check → the test suites (`test_marketplace`, `test_tooling`, `test_omp` — with a nonzero-test-count assertion) → `claude plugin validate ./`. All must pass. CI runs the same steps split across `ci.yml` (validate → drift → suites) and `compat-validate.yml` (`claude plugin validate`); `tests/run-ci-local.sh` replays the CI workflow locally via act if you want the exact workflow bytes.
 
 ## Conventions
 
@@ -46,7 +46,7 @@ Runs, in order: `lint.py` (structure + naming standard) → drift check → the 
 - kebab-case names; Python is PEP 723 + `uv run` (never `pip`); shell scripts use `set -euo pipefail`.
 - PR-only to `main`; feature branches push freely.
 - No AI co-author attribution in commits.
-- Never hand-edit anything under `_generated/` (including the generated catalog doc) or `.claude-plugin/` — regenerated from scratch every run.
+- Never hand-edit anything under `_generated/` (including the generated catalog doc), `.claude-plugin/`, or `.omp-plugin/` — regenerated from scratch every run.
 - After fixing any bug worth remembering, record it in the fixing PR/issue so the next person can find it by search.
 - Install the pre-push hook once: `pre-commit install` (runs `lint.py` on `src/` before each commit).
 

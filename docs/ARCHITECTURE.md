@@ -6,7 +6,7 @@ status: live
 
 # Architecture
 
-The generator turns skill sources under `src/skills/` into Claude Code install artifacts. Two protocols — `Construct` and `Platform` — encapsulate per-type and per-platform behavior; a thin orchestrator (`scripts/generate_manifest.py`) runs the phases in order. After the #18 scope-down there is one construct (`SkillConstruct`) and one platform (`ClaudeCodePlatform`), but the protocol + registry pattern is retained so a re-expansion (issues #20–#36) is a new class + registry entry, not a redesign.
+The generator turns skill sources under `src/skills/` into Claude Code and OMP (Oh My Pi) install artifacts. Two protocols — `Construct` and `Platform` — encapsulate per-type and per-platform behavior; a thin orchestrator (`scripts/generate_manifest.py`) runs the phases in order. After the #18 scope-down there is one construct (`SkillConstruct`) and two platforms (`ClaudeCodePlatform` and `OmpPlatform`); the protocol + registry pattern is retained so a re-expansion (issues #20–#36) is a new class + registry entry, not a redesign.
 
 ## Sources of truth vs. generated
 
@@ -22,8 +22,8 @@ Everything in the repo is one of two things; nothing is both.
 
 **Generator owns (regenerated from scratch every run — hand-edits are lost):**
 
-- `_generated/claude-code/<plugin>/` — the installable plugins, platform-namespaced. Claude Code is the only platform today; a revived platform (issues #28–#36) gets a sibling `_generated/<platform>/` and never mixes. Both source layouts converge here on one shape — `skills/<skill-name>/SKILL.md` declared as `skills: ["./skills/"]` — so a published plugin never points at its own root.
-- `.claude-plugin/marketplace.json` — the manifest `claude plugin marketplace add` reads.
+- `_generated/claude-code/<plugin>/` — the installable plugins, platform-namespaced. Claude Code owns this mirror; OMP reuses it (issue #67) and adds only a sibling top-level manifest, so there is no separate OMP plugin tree. A future mirror-based platform (issues #28–#36) gets its own `_generated/<platform>/` and never mixes. Both source layouts converge here on one shape — `skills/<skill-name>/SKILL.md` declared as `skills: ["./skills/"]` — so a published plugin never points at its own root.
+- `.claude-plugin/marketplace.json` and `.omp-plugin/marketplace.json` — the top-level manifests `claude plugin marketplace add` and `omp plugin marketplace add` read; one per registered platform, each shaped by its platform's `marketplace_manifest`. They share the plugin entries pointing at the mirror but differ in owner and marketplace-description shape: Claude uses a top-level `description` and `owner.url`; OMP uses `metadata.description` and the documented `{name, email?}` owner shape. OMP reads per-plugin manifests from `.omp-plugin/plugin.json`, falling back to `.claude-plugin/`. The comparison and divergence policy live in [docs/platforms/omp.md](platforms/omp.md).
 - `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — the catalog: every plugin, every install/removal path, invocation tables — rendered with this marketplace's identity.
 - `_generated/LINTING_RULES.md` — every lint rule this marketplace enforces, rendered from the `scripts/lint_rules/` registry. Each rule owns its check and a mandatory counterexample; `tests/test_marketplace.py` (`TestLintRegistry`) proves every rule reachable by executing that counterexample, so a rule cannot be published as enforced while being dead.
 
@@ -37,7 +37,7 @@ Everything in the repo is one of two things; nothing is both.
 | Phase | Output | Notes |
 |---|---|---|
 | 1 | `_generated/claude-code/skill-<name>/` + its `.claude-plugin/plugin.json` | one per source plugin; `Construct.emit` copies content, composes plugin.json |
-| 5 | `.claude-plugin/marketplace.json` | from in-memory entries, sorted for deterministic diffs |
+| 5 | `.claude-plugin/marketplace.json` + `.omp-plugin/marketplace.json` | one per platform in `PLATFORMS`, each shaped by its platform's `marketplace_manifest` from in-memory entries, sorted for deterministic diffs |
 | 7 | `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` | generated catalog + installation instructions; drift-checked like the manifests |
 | 8 | `_generated/LINTING_RULES.md` | the lint-rule list, rendered from the `scripts/lint_rules/` registry; drift-checked |
 

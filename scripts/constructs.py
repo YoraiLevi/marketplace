@@ -222,9 +222,9 @@ class SkillConstruct:
 
         Heading contract (_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md):
         ``###`` plugin · ``####`` platform · ``#####`` install method /
-        Invocation · ``######`` Deletion per method. Claude Code is the only
-        platform today; a revived platform (issues #28-#36) adds a sibling
-        ``####`` block here. All commands render with THIS marketplace's
+        Invocation · ``######`` Deletion per method. Claude Code and OMP each
+        render a ``####`` block; a revived platform (issues #28-#36) adds
+        another sibling here. All commands render with THIS marketplace's
         identity so every fork's catalog is copy-pasteable as-is.
         """
         mp = _marketplace_name()
@@ -299,6 +299,29 @@ class SkillConstruct:
         A("> **Note:** the flat shortcut resolves only while the component name "
           "is unambiguous across your installed skills; the namespaced form "
           "always works.")
+        A("")
+        A("#### Oh My Pi")
+        A("")
+        A("##### Plugin installation")
+        A("")
+        A("```bash")
+        A(f"omp plugin marketplace add {slug}        # once per machine")
+        A(f"omp plugin install {entry}@{mp} --scope user")
+        A("```")
+        A("")
+        A("Scopes: `--scope user` (all your projects) | `--scope project` "
+          "(this project only; a project install shadows a same-named user "
+          "install).")
+        A("")
+        A("> **Warning:** `--scope project` writes `.omp/plugins/` in the "
+          "directory you run it from - run it from the root of the project you "
+          "mean to configure.")
+        A("")
+        A("###### Deletion")
+        A("")
+        A("```bash")
+        A(f"omp plugin uninstall {entry}@{mp} --scope user")
+        A("```")
         A("")
         return chr(10).join(L)
 

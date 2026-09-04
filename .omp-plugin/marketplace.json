@@ -1,0 +1,42 @@
+{
+  "name": "dgxsparklabs-template-marketplace",
+  "owner": {
+    "name": "DgxSparkLabs"
+  },
+  "metadata": {
+    "description": "TEMPLATE marketplace - fork this to run your own agentic-capability marketplace. This is not the official DgxSparkLabs marketplace; official capabilities ship from dgxsparklabs-marketplace (github.com/DgxSparkLabs/marketplace).",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "skill-example-multi",
+      "source": "./_generated/claude-code/skill-example-multi",
+      "description": "Two reference skills (notebook, status) demonstrating the multi-skill plugin layout.",
+      "version": "1.0.0",
+      "author": {
+        "name": "DgxSparkLabs"
+      },
+      "category": "skill"
+    },
+    {
+      "name": "skill-example-single",
+      "source": "./_generated/claude-code/skill-example-single",
+      "description": "Prints a minimal greeting plus a UTC timestamp. The smallest possible single-skill reference plugin - copy this layout for your own solo skill.",
+      "version": "1.0.0",
+      "author": {
+        "name": "DgxSparkLabs"
+      },
+      "category": "skill"
+    },
+    {
+      "name": "skill-marketplace-operations",
+      "source": "./_generated/claude-code/skill-marketplace-operations",
+      "description": "Operate your own capability marketplace: create one from the template, add capabilities, ship updates, and pull template upgrades.",
+      "version": "1.0.0",
+      "author": {
+        "name": "DgxSparkLabs"
+      },
+      "category": "skill"
+    }
+  ]
+}

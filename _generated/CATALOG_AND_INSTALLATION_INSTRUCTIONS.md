@@ -62,6 +62,25 @@ rm -rf ~/.claude/skills/hello-yorai
 
 > **Note:** the flat shortcut resolves only while the component name is unambiguous across your installed skills; the namespaced form always works.
 
+#### Oh My Pi
+
+##### Plugin installation
+
+```bash
+omp plugin marketplace add DgxSparkLabs/marketplace-template        # once per machine
+omp plugin install skill-example-single@dgxsparklabs-template-marketplace --scope user
+```
+
+Scopes: `--scope user` (all your projects) | `--scope project` (this project only; a project install shadows a same-named user install).
+
+> **Warning:** `--scope project` writes `.omp/plugins/` in the directory you run it from - run it from the root of the project you mean to configure.
+
+###### Deletion
+
+```bash
+omp plugin uninstall skill-example-single@dgxsparklabs-template-marketplace --scope user
+```
+
 ### skill-marketplace-operations
 
 [↑ Table of contents](#table-of-contents)
@@ -120,3 +139,22 @@ rm -rf ~/.claude/skills/sync-updates-from-template
 | sync-updates-from-template | Pull the marketplace-template's latest machinery updates into the forked marketplace you are working in - automatic and manual paths, plus completing held-back workflow updates. Use when the user wants to update, upgrade, or sync their marketplace from the template. | `/yorailevi-skill-marketplace-operations:sync-updates-from-template` | `/sync-updates-from-template` |
 
 > **Note:** the flat shortcut resolves only while the component name is unambiguous across your installed skills; the namespaced form always works.
+
+#### Oh My Pi
+
+##### Plugin installation
+
+```bash
+omp plugin marketplace add DgxSparkLabs/marketplace-template        # once per machine
+omp plugin install skill-marketplace-operations@dgxsparklabs-template-marketplace --scope user
+```
+
+Scopes: `--scope user` (all your projects) | `--scope project` (this project only; a project install shadows a same-named user install).
+
+> **Warning:** `--scope project` writes `.omp/plugins/` in the directory you run it from - run it from the root of the project you mean to configure.
+
+###### Deletion
+
+```bash
+omp plugin uninstall skill-marketplace-operations@dgxsparklabs-template-marketplace --scope user
+```

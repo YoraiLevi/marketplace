@@ -7,7 +7,7 @@
 utils.py — shared helpers for the marketplace generator.
 
 Provides:
-  - GENERATED, MARKETPLACE_JSON constants
+  - GENERATED, MARKETPLACE_JSON, OMP_MARKETPLACE_JSON constants
   - scan_source_dir   — list instance names under a source directory
   - _load_plugin_json — cached JSON read of a source plugin.json
   - _frontmatter      — YAML frontmatter parser for markdown files
@@ -26,11 +26,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC = REPO_ROOT / "src"
-# Generated output is namespaced per platform; Claude Code is the only
-# platform today. A revived platform (issues #28-#36) gets a sibling dir
-# (_generated/<platform>/), never mixes into this one.
+# Generated output is namespaced per platform. Claude Code owns the physical
+# plugin mirror (_generated/claude-code/); a revived mirror-based platform
+# (issues #28-#36) would get a sibling dir, never mixing into this one.
 GENERATED = REPO_ROOT / "_generated" / "claude-code"
+# Top-level marketplace manifests. Claude Code reads .claude-plugin/; OMP
+# (Oh My Pi) prefers .omp-plugin/ and falls back to .claude-plugin/. Both
+# point at the same _generated/claude-code/ plugin dirs (issue #67).
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+OMP_MARKETPLACE_JSON = REPO_ROOT / ".omp-plugin" / "marketplace.json"
 MARKETPLACE_TOML = SRC / ".metadata-MARKETPLACE.toml"
 
 

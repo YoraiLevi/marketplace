@@ -18,9 +18,18 @@ suite). Looking for DgxSparkLabs' official capabilities? They ship from
 
 ## Install a capability
 
+Claude Code:
+
 ```bash
 claude plugin marketplace add DgxSparkLabs/marketplace-template     # register (once)
 claude plugin install skill-example-single@dgxsparklabs-template-marketplace
+```
+
+Oh My Pi (OMP):
+
+```bash
+omp plugin marketplace add DgxSparkLabs/marketplace-template        # register (once)
+omp plugin install skill-example-single@dgxsparklabs-template-marketplace --scope user
 ```
 
 Browse everything this marketplace publishes — every capability, every install
@@ -56,7 +65,7 @@ automation, in about 5 minutes:
 3. **Set your identity**: edit [`src/.metadata-MARKETPLACE.toml`](src/.metadata-MARKETPLACE.toml)
    — your marketplace name, your URLs — and push.
 4. **Done.** CI republishes everything under your identity: install commands,
-   namespaces, the catalog. Tell users: `claude plugin marketplace add <you>/<your-fork>`.
+   namespaces, the catalog. Tell users: `claude plugin marketplace add <you>/<your-fork>` (or `omp plugin marketplace add <you>/<your-fork>`).
 
 Or let your AI assistant drive it: install the `marketplace-operations`
 capability above and ask for a new marketplace — its `create-marketplace` skill
@@ -71,7 +80,7 @@ edit: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Roadmap
 
-Skills on Claude Code ship today. More capability types (commands, agents,
-hooks, MCP servers, …) and more platforms (Codex, Gemini, Cursor, …) are
-planned and tracked in
+Skills ship today on Claude Code and [Oh My Pi (OMP)](docs/platforms/omp.md). More capability types
+(commands, agents, hooks, MCP servers, …) and more platforms (Codex, Gemini,
+Cursor, …) are planned and tracked in
 [governed re-expansion issues](https://github.com/DgxSparkLabs/marketplace-template/issues/18).

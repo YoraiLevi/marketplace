@@ -67,8 +67,8 @@ rm -rf ~/.claude/skills/hello-yorai
 ##### Plugin installation
 
 ```bash
-omp plugin marketplace add DgxSparkLabs/marketplace-template        # once per machine
-omp plugin install skill-example-single@dgxsparklabs-template-marketplace --scope user
+omp plugin marketplace add YoraiLevi/marketplace        # once per machine
+omp plugin install skill-hello-yorai@yorailevi-marketplace --scope user
 ```
 
 Scopes: `--scope user` (all your projects) | `--scope project` (this project only; a project install shadows a same-named user install).
@@ -78,7 +78,7 @@ Scopes: `--scope user` (all your projects) | `--scope project` (this project onl
 ###### Deletion
 
 ```bash
-omp plugin uninstall skill-example-single@dgxsparklabs-template-marketplace --scope user
+omp plugin uninstall skill-hello-yorai@yorailevi-marketplace --scope user
 ```
 
 ### skill-marketplace-operations
@@ -145,8 +145,8 @@ rm -rf ~/.claude/skills/sync-updates-from-template
 ##### Plugin installation
 
 ```bash
-omp plugin marketplace add DgxSparkLabs/marketplace-template        # once per machine
-omp plugin install skill-marketplace-operations@dgxsparklabs-template-marketplace --scope user
+omp plugin marketplace add YoraiLevi/marketplace        # once per machine
+omp plugin install skill-marketplace-operations@yorailevi-marketplace --scope user
 ```
 
 Scopes: `--scope user` (all your projects) | `--scope project` (this project only; a project install shadows a same-named user install).
@@ -156,5 +156,5 @@ Scopes: `--scope user` (all your projects) | `--scope project` (this project onl
 ###### Deletion
 
 ```bash
-omp plugin uninstall skill-marketplace-operations@dgxsparklabs-template-marketplace --scope user
+omp plugin uninstall skill-marketplace-operations@yorailevi-marketplace --scope user
 ```

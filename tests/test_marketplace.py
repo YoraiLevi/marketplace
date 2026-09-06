@@ -507,6 +507,31 @@ class TestGeneratorDrift(unittest.TestCase):
         )
 
 
+class TestCustomZoneIsBuildInvisible(unittest.TestCase):
+    """The fork-owned custom/ zone must not affect generated output.
+
+    The generator reads src/ and rewrites _generated/ only; custom/ is neither.
+    Planting a file under custom/ and re-running --check proves the extension
+    zone is invisible to the build, so a fork's automation never causes drift.
+    """
+
+    def test_custom_file_does_not_cause_drift(self):
+        probe = REPO_ROOT / "custom" / "_drift_probe.txt"
+        probe.write_text("not a source or generated file\n", encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["uv", "run", "scripts/generate_manifest.py", "--check"],
+                cwd=REPO_ROOT, capture_output=True, text=True, timeout=120,
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                f"a file under custom/ perturbed the generated tree:\n"
+                f"{result.stdout}\n{result.stderr}",
+            )
+        finally:
+            probe.unlink()
+
+
 # ─── TestMarketplaceToml ──────────────────────────────────────────────────────
 
 class TestMarketplaceToml(unittest.TestCase):

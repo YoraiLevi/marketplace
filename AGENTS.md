@@ -11,6 +11,7 @@ This is a fork-ready template marketplace for Claude Code and OMP (Oh My Pi) ski
 - `docs/platforms/omp.md` — how OMP consumes the marketplace, how this repo emits OMP's native manifest shape, and the divergence policy.
 - `_generated/CATALOG_AND_INSTALLATION_INSTRUCTIONS.md` — generated catalog + install instructions. Never hardcode counts or install commands in prose.
 - `_generated/LINTING_RULES.md` — generated lint-rule list; declare rules in `scripts/lint_rules/`, never in prose.
+- `custom/` + `.github/workflows/custom-*.yml` — the fork-owned extension zone (a fork's own scripts, tests, workflows), protected by `merge=ours`. Template machinery never writes here beyond a hello-world example; see `docs/UPDATING.md`.
 - Project history and roadmap live in GitHub issues (start at #18); pre-cleanup project memory is preserved on the `project-memory` branch.
 
 ## Hard rules

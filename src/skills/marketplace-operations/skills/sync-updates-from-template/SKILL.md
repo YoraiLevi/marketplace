@@ -42,7 +42,7 @@ with the user's own credentials:
 
 ```bash
 git fetch https://github.com/DgxSparkLabs/marketplace-template main
-git rm -rq .github/workflows && git checkout FETCH_HEAD -- .github/workflows
+git checkout FETCH_HEAD -- .github/workflows
 git commit -m "chore: apply template workflow updates" && git push
 ```
 > **Always name the branch in the fetch** (`... main`): a bare `git fetch <remote>` can leave `FETCH_HEAD` pointing at a different branch of the template (observed live: it briefly restored pre-cleanup workflows from an archive branch).

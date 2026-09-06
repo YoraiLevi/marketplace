@@ -18,7 +18,7 @@ through the restricted token).
 
 ```bash
 git fetch https://github.com/DgxSparkLabs/marketplace-template main
-git rm -rq .github/workflows && git checkout FETCH_HEAD -- .github/workflows
+git checkout FETCH_HEAD -- .github/workflows
 git commit -m "chore: apply template workflow updates" && git push
 ```
 

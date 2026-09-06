@@ -7,4 +7,9 @@
 # by sync-updates-from-template.yml / the manual recipe). Untouched files keep receiving
 # template updates. Forks: add your own lines to claim more files.
 README.md   merge=ours
-SECURITY.md merge=ours
+SECURITY.md  merge=ours
+AGENTS.md  merge=ours
+
+src/**                         merge=ours
+custom/**                      merge=ours
+.github/workflows/custom-*.yml merge=ours

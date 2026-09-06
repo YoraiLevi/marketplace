@@ -70,9 +70,11 @@ jobs:
           # Default token cannot push workflow-file changes: hold them back
           # (keep this fork's current workflows) unless SYNC_TOKEN is set.
           if [ "$HAS_SYNC_TOKEN" != "true" ] && ! git diff --quiet "$PRE" HEAD -- .github/workflows; then
-            # Restore the EXACT pre-merge workflow set. checkout alone cannot
-            # remove files the template ADDED (e.g. a workflow rename), which
-            # would still hit the token restriction on push - so delete-first.
+            # Restore the EXACT pre-merge workflow set - $PRE is THIS fork's own
+            # tree, so fork-only custom-*.yml (docs/UPDATING.md) survive here.
+            # checkout alone cannot remove files the template ADDED (e.g. a
+            # workflow rename), which would still hit the token restriction on
+            # push, so delete-first.
             git rm -rq .github/workflows
             git checkout "$PRE" -- .github/workflows
             git add .github/workflows
@@ -106,7 +108,7 @@ jobs:
             echo ""
             echo '```bash'
             echo "git fetch https://github.com/${TEMPLATE_REPO} main"
-            echo "git rm -rq .github/workflows && git checkout FETCH_HEAD -- .github/workflows"
+            echo "git checkout FETCH_HEAD -- .github/workflows"
             echo "git commit -m 'chore: apply template workflow updates' && git push"
             echo '```'
             echo ""

@@ -27,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent  # repo root (this file lives in scripts/)
 
 SUITES = ("test_marketplace", "test_tooling", "test_omp")
+CUSTOM_TESTS = ROOT / "custom" / "tests"
 
 
 def run(cmd: list[str]) -> int:
@@ -40,6 +41,23 @@ def regen() -> int:
 
 def check() -> int:
     return run(["uv", "run", "scripts/generate_manifest.py", "--check"])
+
+
+def _run_custom_tests() -> int:
+    """Run fork-authored tests in custom/tests/ (docs/UPDATING.md), if any.
+
+    Additive to SUITES and deliberately NOT under the nonzero-count gate: a fork
+    that deleted the example (or never wrote a test) has zero here, which is fine.
+    Tests that exist and fail DO fail - a fork's own gate on its own content.
+    """
+    if not CUSTOM_TESTS.is_dir():
+        return 0
+    cmd = ["uv", "run", "-m", "unittest", "discover", "-v", "-s", "custom/tests", "-t", "custom/tests"]
+    print(f"\n$ {' '.join(cmd)}", flush=True)
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    sys.stdout.write(proc.stdout)
+    sys.stderr.write(proc.stderr)
+    return proc.returncode
 
 
 def test() -> int:
@@ -61,6 +79,7 @@ def test() -> int:
             print(f"[test] FAIL: {suite} ran ZERO tests — vacuous green rejected")
             rc |= 1
         rc |= proc.returncode
+    rc |= _run_custom_tests()
     return rc
 
 

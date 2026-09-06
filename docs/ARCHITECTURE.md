@@ -10,7 +10,7 @@ The generator turns skill sources under `src/skills/` into Claude Code and OMP (
 
 ## Sources of truth vs. generated
 
-Everything in the repo is one of two things; nothing is both.
+Every file in the repo has exactly one owner.
 
 **Humans edit (source intent):**
 
@@ -29,8 +29,10 @@ Everything in the repo is one of two things; nothing is both.
 
 `docs/` now contains ONLY human-authored prose; everything machine-written lives under `_generated/`.
 
-**Neither (plumbing, hand-maintained but not content):** `scripts/` (generator, validators, task runner), `tests/`, `.github/` (CI), `docs/` prose.
+**Neither (plumbing, hand-maintained but not content):** `scripts/` (generator, validators, task runner), `tests/`, `.github/` CI (every workflow except the fork-owned `custom-*.yml`), `docs/` prose.
 - In CI, `regen-bot.yml` runs the generator and commits the result (identity `marketplace-generator`) on pushes to main and same-repo PRs; `ci.yml`'s `--check` drift gate rejects any tree where regeneration is not a no-op.
+
+**Fork-owned (a fork's own machinery, never the template's):** `custom/` and `.github/workflows/custom-*.yml` — a fork's scripts, tests, and workflows. Outside `src/` (not published capabilities) and outside the generator/lint scope, yet reserved for the fork and protected by `merge=ours`, so template syncs never touch them; the template ships only a hello-world example in each. See [`docs/UPDATING.md`](UPDATING.md).
 
 ## The generation phases
 

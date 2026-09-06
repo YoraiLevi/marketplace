@@ -8,12 +8,13 @@ audience: forkers (marketplace owners)
 Your fork is **your content on top of the template's machinery**, and the split is
 strict by design:
 
-- **Yours**: all of `src/` — your skills, your metadata, and the shipped examples,
-  which you may freely edit or **delete**. Nothing outside `src/` needs your
-  edits, ever.
-- **The template's**: scripts, workflows, tests, docs, and all generated output.
-  These receive fixes and improvements upstream — and your fork is *supposed* to
-  pull them in, like software updates.
+- **Yours**: everything in `src/` (your skills, your metadata, and the shipped
+  examples, which you may edit or delete). You also own the extension zone for your
+  marketplace's own scripts, tests, and workflows: `custom/` and
+  `.github/workflows/custom-*.yml`.
+- **The template's**: everything else. The generator and the rest of `scripts/`,
+  the template's own workflows, `tests/`, `docs/`, and all generated output receive
+  fixes and improvements upstream, and your fork pulls them in like software updates.
 
 Updates merge underneath your content without touching it, and every conflict
 resolves in your favor — so template updates can never resurrect an example you
@@ -70,6 +71,29 @@ default): while you leave one untouched it keeps receiving template updates;
 the moment you customize it, every sync keeps your version whole-file — no
 half-merged text, ever. Claim more files by adding your own `merge=ours`
 lines to `.gitattributes`; the sync preserves your additions.
+
+## Extend with your own scripts & workflows
+
+`src/` holds the capabilities you publish. Your marketplace's own machinery lives in
+two fork-owned places instead: put scripts, helpers, data, and tests in `custom/`
+(tests go in `custom/tests/`), and put your own GitHub Actions workflows in
+`.github/workflows/` with a `custom-` prefix, for example `custom-vendor.yml`.
+
+Both are protected by `merge=ours` in `.gitattributes`, so a template sync never
+overwrites them. The template ships one hello-world example in each
+(`custom/hello_custom.py` and `.github/workflows/custom-hello.yml`); copy it or
+delete it, the same way you treat the example skills. Tests you add under
+`custom/tests/` run automatically with `uv run scripts/tasks.py test`, so your CI
+checks your code and you never edit a template-owned file. You push your own
+`custom-*.yml` workflows yourself, with your own credentials; the GitHub rule that
+blocks the sync bot from pushing `.github/workflows/` does not apply to you.
+
+Give each workflow you own its own `custom-` name rather than editing the shipped
+`custom-hello.yml`. A workflow whose name the template does not ship is yours alone
+and survives every sync. If you edit the shipped `custom-hello.yml` in place, the
+daily merge keeps your version, but the manual step that finishes a held-back
+workflow update replaces it with the template's copy. Copying rather than editing
+avoids that surprise.
 
 ## What NOT to do
 
